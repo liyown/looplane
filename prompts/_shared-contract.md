@@ -112,6 +112,16 @@ All other fields are optional and should be omitted when empty.
   "labelsToRemove": [],
   "linearComment": "",
   "memoryPatch": {},
+  "runtimeIssues": [
+    {
+      "category": "prompt_gap | schema_gap | runner_gap | linear_setup | repo_access | tooling | flaky_verification | unexpected_state | other",
+      "severity": "low | medium | high | critical",
+      "summary": "",
+      "detail": "",
+      "evidence": [],
+      "suggestedChange": ""
+    }
+  ],
   "repoActions": [],
   "targetPatch": null,
   "discoveryReport": null,
@@ -139,3 +149,16 @@ should set `nextState: null`, `requestedWorker: "coordinator"`, and
 `kind`, `status`, `repo`, `confidence`, and `evidence`. `executionBrief` may include
 extra analysis fields, but its core fields must be present so the owning state loop
 and Coordinator can enforce gates without parsing prose.
+
+## Runtime Issue Logging
+
+Use `runtimeIssues` when the loop observes a problem with the loop system itself, not
+the product issue. Examples include prompt ambiguity, missing schema fields, runner
+behavior gaps, Linear setup gaps, repo access failures, missing tools, flaky
+verification, and unexpected states.
+
+Do not use `runtimeIssues` for ordinary product requirements or implementation tasks.
+The runner should append each runtime issue to `memory/runtime-issues/YYYY-MM.jsonl`
+with the observed issue id, run id, loop, timestamp, and the emitted object. These
+records are iteration evidence for changing prompts, schema, runner behavior, or
+Linear setup.

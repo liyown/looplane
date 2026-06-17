@@ -46,6 +46,19 @@ def assert_schema_shape(schema):
         >= {"target", "kind", "blocking", "reason"},
         "escalation must include target, kind, blocking, and reason",
     )
+    require("runtimeIssues" in props, "schema must define runtimeIssues")
+    runtime_issue = props["runtimeIssues"]["items"]
+    require(
+        set(runtime_issue.get("required", []))
+        >= {
+            "category",
+            "severity",
+            "summary",
+            "detail",
+            "suggestedChange",
+        },
+        "runtimeIssues must require category, severity, summary, detail, and suggestedChange",
+    )
 
     discovery_target = get_prop(schema, "discoveryReport", "target")
     require(
@@ -103,6 +116,29 @@ def validate_result(result):
         escalation = result["escalation"]
         for field in ("target", "kind", "blocking", "reason"):
             require(field in escalation, f"escalation.{field} is required")
+
+    for issue in result.get("runtimeIssues", []):
+        for field in ("category", "severity", "summary", "detail", "suggestedChange"):
+            require(field in issue, f"runtimeIssues.{field} is required")
+        require(
+            issue["category"]
+            in {
+                "prompt_gap",
+                "schema_gap",
+                "runner_gap",
+                "linear_setup",
+                "repo_access",
+                "tooling",
+                "flaky_verification",
+                "unexpected_state",
+                "other",
+            },
+            "bad runtimeIssues.category",
+        )
+        require(
+            issue["severity"] in {"low", "medium", "high", "critical"},
+            "bad runtimeIssues.severity",
+        )
 
     if result.get("discoveryReport") is not None:
         report = result["discoveryReport"]

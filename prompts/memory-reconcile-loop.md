@@ -14,6 +14,8 @@ marking, and safe retry conditions.
 - Detect repeated blockers.
 - Detect human state/label changes.
 - Detect GitHub/PR automation drift.
+- Detect repeated runtime issues that point to prompt, schema, runner, or Linear setup
+  changes.
 - Recommend memory patches and concise Linear comments.
 
 ## You Must Not
@@ -61,6 +63,12 @@ marking, and safe retry conditions.
 - Done still has `blocked` or unresolved `needs-*`.
 - Multiple active In Progress runs own the same repo/worktree.
 - Human-owned label was re-added by automation without new evidence.
+
+## Runtime Issue Rollup
+
+Read `memory/runtime-issues/` when available. Group repeated records by category,
+summary, and suggested change. Recommend Coordinator action when the same issue keeps
+appearing or when severity is `high` or `critical`.
 
 ## Output Requirements
 

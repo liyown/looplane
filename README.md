@@ -67,6 +67,8 @@ A platform using these prompts needs:
 - Linear read/write access for issues, comments, labels, projects, and statuses.
 - A persistent memory store for fingerprints, runs, discovery reports, locks, and
   cooldowns.
+- A runtime issue log, normally `memory/runtime-issues/YYYY-MM.jsonl`, for problems
+  found while the loops run.
 - Linear Project agent settings for repository origins and verification commands.
   Agents must not infer clone URLs.
 - A way to run one prompt per loop role and validate JSON output.
@@ -122,7 +124,7 @@ python3 scripts/validate-loop-schema.py
 Expected output:
 
 ```text
-validated schema shape and 4 fixtures
+validated schema shape and 5 fixtures
 ```
 
 ## What Not To Do
@@ -132,3 +134,5 @@ validated schema shape and 4 fixtures
 - Do not let code-backed work enter `Todo` without a fresh Discovery report.
 - Do not let implementation run without a Repo Manager write lock.
 - Do not use Coordinator for routine state movement.
+- Do not hide runner, prompt, schema, access, or setup problems in free-form comments;
+  emit `runtimeIssues[]` so the next iteration has evidence.

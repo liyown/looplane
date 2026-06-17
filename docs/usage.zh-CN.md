@@ -37,6 +37,7 @@ for each candidate:
   compare observed snapshot with current state
   apply allowed changes only if the snapshot still matches
   otherwise mark stale/no-op and escalate when needed
+  append runtimeIssues[] to memory/runtime-issues/YYYY-MM.jsonl
 ```
 
 compare 至少检查：
@@ -188,9 +189,30 @@ memory/discovery/{issueId}.json
 memory/repos/{repoSlug}.json
 memory/projects/{projectSlug}.json
 memory/runs/{runId}.json
+memory/runtime-issues/{YYYY-MM}.jsonl
 ```
 
 如果平台没有文件系统，就用数据库或 KV 存同样的数据。
+
+## 运行问题日志
+
+loop 遇到系统本身的问题时，用 `runtimeIssues[]` 记录，不要只写在评论里。
+
+适合记录的情况：
+
+- prompt 规则不清楚或缺失；
+- schema 表达不了需要的结果；
+- runner 没有执行必要的写前检查；
+- Linear 配置缺失或不一致；
+- Repo Manager 没有权限访问已声明的 origin；
+- 缺少必要工具；
+- 验证命令不稳定；
+- Linear 出现当前 loop 没覆盖的状态。
+
+runner 把每条记录追加到 `memory/runtime-issues/YYYY-MM.jsonl`。记录里应包含
+loop、issue id、run id、时间戳和 loop 输出的 runtime issue 对象。Coordinator 或
+Memory/Reconcile 定期归并这些记录，把重复问题转成 prompt、schema、runner 或
+Linear 设置的改动。
 
 ## Discovery Gate
 

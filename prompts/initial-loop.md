@@ -96,6 +96,7 @@ Create or verify:
 - `memory/projects/`
 - `memory/decisions/`
 - `memory/runs/`
+- `memory/runtime-issues/`
 
 If the platform does not expose a filesystem, tell the user which persistent store
 must hold the same records.
@@ -119,7 +120,8 @@ End your response with a short section named `Start the system`. Include:
    writes to Linear.
 4. A reminder that code-backed issues need `Agent Project Settings` repo origins and a
    fresh Discovery report before Todo.
-5. Any manual Linear UI steps that the API/tooling could not complete.
+5. The runtime issue log path: `memory/runtime-issues/YYYY-MM.jsonl`.
+6. Any manual Linear UI steps that the API/tooling could not complete.
 
 If Linear workflow configuration requires manual UI work, return `requiresHuman: true`
 and list the exact manual steps.

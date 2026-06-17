@@ -103,6 +103,47 @@
       "type": "object",
       "additionalProperties": true
     },
+    "runtimeIssues": {
+      "type": "array",
+      "items": {
+        "type": "object",
+        "additionalProperties": false,
+        "required": [
+          "category",
+          "severity",
+          "summary",
+          "detail",
+          "suggestedChange"
+        ],
+        "properties": {
+          "category": {
+            "type": "string",
+            "enum": [
+              "prompt_gap",
+              "schema_gap",
+              "runner_gap",
+              "linear_setup",
+              "repo_access",
+              "tooling",
+              "flaky_verification",
+              "unexpected_state",
+              "other"
+            ]
+          },
+          "severity": {
+            "type": "string",
+            "enum": ["low", "medium", "high", "critical"]
+          },
+          "summary": { "type": "string", "minLength": 1 },
+          "detail": { "type": "string", "minLength": 1 },
+          "evidence": {
+            "type": "array",
+            "items": { "type": "string" }
+          },
+          "suggestedChange": { "type": "string", "minLength": 1 }
+        }
+      }
+    },
     "repoActions": {
       "type": "array",
       "items": {

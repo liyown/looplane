@@ -38,6 +38,7 @@ for each candidate:
   compare observed snapshot with current state
   apply allowed changes only if the snapshot still matches
   otherwise mark stale/no-op and escalate when needed
+  append runtimeIssues[] to memory/runtime-issues/YYYY-MM.jsonl
 ```
 
 The compare step must check at least:
@@ -193,9 +194,28 @@ memory/discovery/{issueId}.json
 memory/repos/{repoSlug}.json
 memory/projects/{projectSlug}.json
 memory/runs/{runId}.json
+memory/runtime-issues/{YYYY-MM}.jsonl
 ```
 
 `memory/` is ignored by git because it belongs to a runner instance.
+
+## Runtime Issue Log
+
+Loops use `runtimeIssues[]` for problems in the loop system itself:
+
+- prompt instructions were ambiguous or missing;
+- schema could not express a needed result;
+- runner did not enforce a required write rule;
+- Linear setup was missing or inconsistent;
+- Repo Manager lacked access to a declared origin;
+- a required tool was unavailable;
+- verification was flaky;
+- Linear entered a state the loop set does not handle.
+
+The runner appends each entry to `memory/runtime-issues/YYYY-MM.jsonl`. Include the
+loop, issue id, run id, timestamp, and the emitted runtime issue object. Coordinator
+or Memory/Reconcile should group repeated records and turn them into prompt, schema,
+runner, or Linear setup changes.
 
 ## Discovery Gate
 

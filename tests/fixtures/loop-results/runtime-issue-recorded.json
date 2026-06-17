@@ -1,0 +1,37 @@
+{
+  "expectValid": true,
+  "result": {
+    "status": "blocked",
+    "reason": "Repo Manager could not clone the declared repository origin.",
+    "observed": {
+      "issueId": "ABC-123",
+      "runId": "run-20260617-repo-manager-abc123",
+      "loop": "repo-manager",
+      "workerId": "repo-manager-1",
+      "fingerprint": "sha256:repo-access"
+    },
+    "nextState": null,
+    "requestedWorker": "coordinator",
+    "escalation": {
+      "target": "coordinator",
+      "kind": "repo_or_lock_conflict",
+      "blocking": true,
+      "reason": "Repository origin is declared but clone access failed."
+    },
+    "runtimeIssues": [
+      {
+        "category": "repo_access",
+        "severity": "high",
+        "summary": "Declared repository origin cannot be cloned",
+        "detail": "Repo Manager received an access failure while cloning product-a-app from the Linear Project Agent Project Settings origin.",
+        "evidence": [
+          "repo=product-a-app",
+          "action=clone",
+          "error=permission denied"
+        ],
+        "suggestedChange": "Initial loop should verify repository access for declared repos before schedules start."
+      }
+    ],
+    "requiresHuman": true
+  }
+}

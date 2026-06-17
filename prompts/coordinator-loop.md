@@ -17,6 +17,8 @@ handle exceptions, conflicts, unknown states, and cross-loop coordination.
 7. Route expired leases and repo/worktree conflicts through Repo Manager.
 8. Suppress repeated blocked/no-op work through cooldowns.
 9. Write concise coordination comments when human-visible explanation is needed.
+10. Review runtime issue logs and group repeated system problems into concrete
+    iteration candidates.
 
 ## Default Visible State Machine
 

@@ -399,6 +399,7 @@ memory/repos/{repoSlug}.json
 memory/projects/{projectSlug}.json
 memory/decisions/{YYYY-MM-DD}-{slug}.md
 memory/runs/{runId}.json
+memory/runtime-issues/{YYYY-MM}.jsonl
 ```
 
 Issue memory example:
@@ -421,6 +422,12 @@ Issue memory example:
   "nextEligibleAt": "2026-06-18T10:00:00+08:00"
 }
 ```
+
+Runtime issues are append-only records for system problems found while loops run. They
+are not product issue requirements. The runner appends emitted `runtimeIssues[]`
+objects to `memory/runtime-issues/YYYY-MM.jsonl` with the observed issue id, run id,
+loop, and timestamp. Coordinator or Memory/Reconcile uses repeated records as
+iteration input for prompts, schema, runner behavior, Linear setup, or repo access.
 
 Fingerprint inputs:
 

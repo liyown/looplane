@@ -60,6 +60,7 @@ Discovery 默认不是 Linear 状态。代码类 issue 必须先有 fresh Discov
 
 - Linear issue、comment、label、project、status 的读写能力。
 - 一个持久化 memory，用来存 fingerprint、run、Discovery report、lock 和 cooldown。
+- 一个运行问题日志，通常是 `memory/runtime-issues/YYYY-MM.jsonl`，用来记录 loop 运行时发现的系统问题。
 - Linear Project 里的 `Agent Project Settings`，保存 repo origin、default branch 和验证命令。
 - 按 loop role 运行 prompt，并校验 JSON 输出。
 - Repo Manager 能执行 clone、fetch、worktree、read lease、write lock、baseline 和 verification。
@@ -110,7 +111,7 @@ python3 scripts/validate-loop-schema.py
 预期输出：
 
 ```text
-validated schema shape and 4 fixtures
+validated schema shape and 5 fixtures
 ```
 
 ## 不要这样做
@@ -120,3 +121,4 @@ validated schema shape and 4 fixtures
 - 不要让代码类 issue 在没有 Discovery report 时进入 `Todo`。
 - 不要让实现 loop 在没有 Repo Manager write lock 时改代码。
 - 不要让 Coordinator 负责日常状态推进。
+- 不要把 runner、prompt、schema、权限或 Linear 设置问题只写在自由文本评论里；要输出 `runtimeIssues[]`，给下一轮迭代留下依据。
