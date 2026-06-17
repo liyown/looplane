@@ -1,57 +1,73 @@
 # Usage
 
-This document describes how to wire the prompts into an automation platform or a
-small custom runner.
+This document complements [INSTALL.zh-CN.md](../INSTALL.zh-CN.md). The default model
+is local execution: schedules can access `~/.linear-loop`.
 
 ## Roles
 
-| Role | Runs On | Writes Normal State Transitions | Main Job |
-| --- | --- | --- | --- |
-| Triage | `Triage` issues | Yes | Accept, cancel, or mark duplicates. |
-| Backlog | `Backlog` issues | Yes | Bound scope, resolve target, request Discovery when needed. |
-| Discovery | Internal handoff | No visible state by default | Read repository context and produce a report. |
-| Todo | `Todo` issues | Yes | Build an execution brief from evidence. |
-| In Progress | `In Progress` issues | Yes | Implement approved work in a locked worktree. |
-| In Review | `In Review` issues | Yes | Verify work and move to Done or send it back. |
-| Done | `Done` issues | Usually no | Keep final records tidy. |
-| Canceled | `Canceled` issues | No | Keep terminal state stable. |
-| Duplicate | `Duplicate` issues | No | Preserve canonical links and comments. |
-| Memory/Reconcile | Internal handoff or schedule | No | Mark stale runs, expired runs, cooldowns, and drift. |
-| Repo Manager | Internal handoff | No Linear state writes | Own clone, fetch, worktree, leases, locks, and verification. |
-| Coordinator | Internal handoff or schedule | Only exceptional reroutes | Resolve CAS conflicts, unknown states, duplicate runs, and multi-repo coordination. |
+| Role | Runs On | Prompt |
+| --- | --- | --- |
+| Initial | one manual run | `dist/zh-CN/prompts/initial-loop.standalone.md` |
+| Triage | `Triage` issues | `dist/zh-CN/prompts/triage-loop.standalone.md` |
+| Backlog | `Backlog` issues | `dist/zh-CN/prompts/backlog-loop.standalone.md` |
+| Todo | `Todo` issues | `dist/zh-CN/prompts/todo-loop.standalone.md` |
+| In Progress | `In Progress` issues | `dist/zh-CN/prompts/in-progress-loop.standalone.md` |
+| In Review | `In Review` issues | `dist/zh-CN/prompts/in-review-loop.standalone.md` |
+| Done | `Done` issues | `dist/zh-CN/prompts/done-loop.standalone.md` |
+| Canceled | `Canceled` issues | `dist/zh-CN/prompts/canceled-loop.standalone.md` |
+| Duplicate | `Duplicate` issues | `dist/zh-CN/prompts/duplicate-loop.standalone.md` |
+| Discovery | internal handoff | `dist/zh-CN/prompts/discovery-loop.standalone.md` |
+| Repo Manager | internal handoff | `dist/zh-CN/prompts/repo-manager.standalone.md` |
+| Memory/Reconcile | schedule or internal handoff | `dist/zh-CN/prompts/memory-reconcile-loop.standalone.md` |
+| Coordinator | exception handling | `dist/zh-CN/prompts/coordinator-loop.standalone.md` |
+
+State loops scan only their owned state. Service loops do not own normal visible
+states.
+
+## Local Loop Space
+
+Runtime state lives here:
+
+```text
+~/.linear-loop/config.yaml
+~/.linear-loop/memory/issues/
+~/.linear-loop/memory/discovery/
+~/.linear-loop/memory/repos/
+~/.linear-loop/memory/projects/
+~/.linear-loop/memory/decisions/
+~/.linear-loop/memory/runs/
+~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl
+~/.linear-loop/repos/
+~/.linear-loop/worktrees/
+```
+
+Memory records fingerprints, run reservations, Discovery reports, leases, locks,
+cooldowns, and runtime issues. Repo Manager owns `repos` and `worktrees`.
 
 ## Runner Loop
 
 Each scheduled state loop should do this:
 
 ```text
-list issues in owned Linear state
+list issues in the owned Linear state
 for each candidate:
-  load issue memory
+  load issue memory from ~/.linear-loop
   compute fingerprint
   skip unchanged blocked/no-op issues until nextEligibleAt
   create or reuse run reservation
   build context
-  run the matching prompt
-  validate JSON against schemas/loop-result.schema.json
-  re-read Linear and memory
+  run the matching standalone prompt
+  require JSON output
+  re-read Linear and ~/.linear-loop memory
   compare observed snapshot with current state
   apply allowed changes only if the snapshot still matches
   otherwise mark stale/no-op and escalate when needed
-  append runtimeIssues[] to memory/runtime-issues/YYYY-MM.jsonl
+  append runtimeIssues[] to ~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl
 ```
 
-The compare step must check at least:
-
-- issue id
-- Linear state
-- Linear `updatedAt`
-- labels hash
-- description hash
-- memory version
-- fingerprint
-- active run id
-- lease or lock id when present
+The compare step must check at least issue id, Linear state, `updatedAt`, labels hash,
+description hash, memory version, fingerprint, active run id, and lease or lock id
+when present.
 
 ## Handoffs
 
@@ -80,74 +96,13 @@ Use `escalation` for blocking or exceptional handoffs:
 }
 ```
 
-Coordinator should handle:
-
-- `cas_conflict`
-- `stale_run`
-- `expired_lease`
-- `unknown_state`
-- `human_or_automation_drift`
-- `multi_repo`
-- `repo_or_lock_conflict`
-
-## Linear Setup
-
-Use this visible workflow:
-
-```text
-Triage -> Backlog -> Todo -> In Progress -> In Review -> Done
-Canceled / Duplicate
-```
-
-Default labels are defined in [docs/linear-loop-system-spec.md](linear-loop-system-spec.md).
-
-Keep repository data out of high-cardinality labels unless the workspace is small.
-Repository origins and default verification commands belong in Linear Project agent
-settings.
-
-Run [prompts/initial-loop.md](../prompts/initial-loop.md) before starting schedules.
-It verifies the workflow, labels, project settings, memory locations, and a no-code
-healthcheck issue. If the Linear API cannot change a setting, it should return a
-manual checklist instead of claiming the setup is done.
-
-## Start The System
-
-After Initial loop finishes:
-
-1. Confirm each managed Linear Project has `Agent Project Settings`.
-2. Start one schedule per visible state loop:
-
-   ```text
-   Triage       -> prompts/triage-loop.md
-   Backlog      -> prompts/backlog-loop.md
-   Todo         -> prompts/todo-loop.md
-   In Progress  -> prompts/in-progress-loop.md
-   In Review    -> prompts/in-review-loop.md
-   Done         -> prompts/done-loop.md
-   Canceled     -> prompts/canceled-loop.md
-   Duplicate    -> prompts/duplicate-loop.md
-   ```
-
-3. Configure service-loop handoffs:
-
-   ```text
-   Discovery        -> prompts/discovery-loop.md
-   Repo Manager     -> prompts/repo-manager.md
-   Memory/Reconcile -> prompts/memory-reconcile-loop.md
-   Coordinator      -> prompts/coordinator-loop.md
-   ```
-
-4. Enforce the write rule in the runner: a loop may write only after re-reading Linear
-   and memory and confirming its observed snapshot still matches.
-5. Route `requestedWorker` to the named service loop.
-6. Route `escalation.target: "coordinator"` to Coordinator.
+Coordinator handles CAS conflicts, stale runs, expired leases, unknown states,
+human/automation drift, multi-repo decisions, and repo or lock conflicts.
 
 ## Linear Project Agent Settings
 
-Store project-level agent settings on the Linear Project, either in the project
-description or in a linked project document named `Agent Project Settings`.
-
-Use a fenced YAML block so runners can parse it without guessing:
+Store project settings on the Linear Project, either in the project description or in
+a linked project document named `Agent Project Settings`.
 
 ```yaml
 agent:
@@ -162,42 +117,28 @@ agent:
       defaultBranch: main
       verify:
         test: pnpm test
-    product-a-api:
-      origin: git@github.com:org/product-a-api.git
-      defaultBranch: main
-      verify:
-        test: pnpm test
   componentMap:
     Area/Frontend:
       kind: code
       repo: product-a-app
       confidence: high
-    Area/API:
-      kind: code
-      repo: product-a-api
-      confidence: high
 ```
 
-A loop may infer a repo slug from project, area, template, linked PR, or history.
-Repo Manager may clone only origins declared in the Linear Project settings.
+Backlog may infer a repo slug from project, area label, issue template, linked PR, or
+history. Repo Manager may clone only origins declared in the Linear Project settings.
 
-## Memory
+## Discovery Gate
 
-Memory is runtime state. It should be rebuildable from Linear Project settings and
-Git with some loss of convenience.
-
-Suggested paths:
+For code-backed work:
 
 ```text
-memory/issues/{issueId}.json
-memory/discovery/{issueId}.json
-memory/repos/{repoSlug}.json
-memory/projects/{projectSlug}.json
-memory/runs/{runId}.json
-memory/runtime-issues/{YYYY-MM}.jsonl
+Backlog
+  -> requestedWorker: discovery
+  -> Discovery report in ~/.linear-loop/memory/discovery/
+  -> Backlog applies Todo when gates pass
 ```
 
-`memory/` is ignored by git because it belongs to a runner instance.
+Do not use issue text alone to enter `Todo`.
 
 ## Runtime Issue Log
 
@@ -210,54 +151,29 @@ Loops use `runtimeIssues[]` for problems in the loop system itself:
 - Repo Manager lacked access to a declared origin;
 - a required tool was unavailable;
 - verification was flaky;
-- Linear entered a state the loop set does not handle.
+- Linear entered a state the loop set does not handle;
+- the schedule could not access `~/.linear-loop`.
 
-The runner appends each entry to `memory/runtime-issues/YYYY-MM.jsonl`. Include the
-loop, issue id, run id, timestamp, and the emitted runtime issue object. Coordinator
-or Memory/Reconcile should group repeated records and turn them into prompt, schema,
-runner, or Linear setup changes.
+The runner appends each entry to
+`~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl`. Memory/Reconcile groups repeated
+records and turns them into prompt, schema, runner, or Linear setup changes.
 
-## Discovery Gate
+## Maintaining The Copy Pack
 
-For code-backed work:
+`prompts/` is source. `dist/zh-CN/prompts/` is what users paste into schedules.
 
-```text
-Backlog
-  -> requestedWorker: discovery
-  -> Discovery report
-  -> Backlog applies Todo when gates pass
-```
-
-Do not use issue text alone to enter `Todo`.
-
-## Verification
-
-Use the local protocol validator:
+After source changes, run:
 
 ```sh
+python3 scripts/build-standalone-prompts.py
+python3 scripts/build-standalone-prompts.py --check
+python3 scripts/validate-copy-pack.py
 python3 scripts/validate-loop-schema.py
 ```
 
-It checks:
+When adding a loop, update:
 
-- the schema exposes `requestedWorker`
-- the schema uses `escalation`, not the old centralized action field
-- Discovery and Todo evidence fields are required
-- fixtures cover valid handoff, invalid Discovery report, valid execution brief, and
-  CAS conflict escalation
-
-## Adding A Loop
-
-Before adding a new loop, decide whether it is:
-
-- a visible state loop, which may scan and apply normal transitions for one Linear
-  state;
-- a service loop, which works from handoffs and should not own visible state;
-- a Coordinator case, which should stay exceptional.
-
-Add or update:
-
-- prompt file in `prompts/`
-- allowed transition in the spec
-- schema field only if the existing contract cannot express the result
-- at least one fixture if schema behavior changes
+- the source prompt in `prompts/`
+- `scripts/build-standalone-prompts.py`
+- `scripts/validate-copy-pack.py`
+- schema and fixtures when the output contract changes

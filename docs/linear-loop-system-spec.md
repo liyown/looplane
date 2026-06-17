@@ -6,7 +6,8 @@ This spec defines a generic Linear-driven local agent team. It can initialize an
 empty Linear workspace, process natural-language issues without requiring users to
 name repositories, read repositories before planning implementation, and tolerate
 manual Linear changes, GitHub/PR automation, unfinished prior runs, and multiple
-local executors.
+local executors. Runtime state lives under `~/.linear-loop`; this repository is the
+source for maintained prompts, schema, tests, and generated copy packs.
 
 The v1 default optimizes for first use: few visible statuses, few labels, independent
 state loops, a small output schema, and one Coordinator loop for exceptions. Normal
@@ -390,16 +391,19 @@ invalidate evidence.
 
 ## 10. Memory and Concurrency Model
 
-Suggested local structure:
+Default local Loop Space structure:
 
 ```text
-memory/issues/{issueId}.json
-memory/discovery/{issueId}.json
-memory/repos/{repoSlug}.json
-memory/projects/{projectSlug}.json
-memory/decisions/{YYYY-MM-DD}-{slug}.md
-memory/runs/{runId}.json
-memory/runtime-issues/{YYYY-MM}.jsonl
+~/.linear-loop/config.yaml
+~/.linear-loop/memory/issues/{issueId}.json
+~/.linear-loop/memory/discovery/{issueId}.json
+~/.linear-loop/memory/repos/{repoSlug}.json
+~/.linear-loop/memory/projects/{projectSlug}.json
+~/.linear-loop/memory/decisions/{YYYY-MM-DD}-{slug}.md
+~/.linear-loop/memory/runs/{runId}.json
+~/.linear-loop/memory/runtime-issues/{YYYY-MM}.jsonl
+~/.linear-loop/repos/{repoSlug}/
+~/.linear-loop/worktrees/{issueId}-{repoSlug}/
 ```
 
 Issue memory example:
@@ -425,9 +429,10 @@ Issue memory example:
 
 Runtime issues are append-only records for system problems found while loops run. They
 are not product issue requirements. The runner appends emitted `runtimeIssues[]`
-objects to `memory/runtime-issues/YYYY-MM.jsonl` with the observed issue id, run id,
-loop, and timestamp. Coordinator or Memory/Reconcile uses repeated records as
-iteration input for prompts, schema, runner behavior, Linear setup, or repo access.
+objects to `~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl` with the observed
+issue id, run id, loop, and timestamp. Coordinator or Memory/Reconcile uses repeated
+records as iteration input for prompts, schema, runner behavior, Linear setup, or repo
+access.
 
 Fingerprint inputs:
 
@@ -722,6 +727,9 @@ Add `security-sensitive`, require `Mode/Human` or `Mode/Hybrid`, and block Done 
 human review is recorded.
 
 ## 15. Worker Prompt Set
+
+`prompts/` is the modular source layer. Users paste generated standalone prompts from
+`dist/zh-CN/prompts/` into schedules.
 
 ```text
 prompts/_shared-contract.md

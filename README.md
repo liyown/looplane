@@ -1,138 +1,107 @@
 # Linear Loop System
 
-中文文档: [README.zh-CN.md](README.zh-CN.md)
+Chinese docs: [README.zh-CN.md](README.zh-CN.md)
 
-This repository defines a Linear-based work loop for local agents.
+This repository maintains a Linear-based loop system for local agents.
 
-It is not a runner. It contains the prompts, schema, examples, and operating rules a
-runner needs in order to move Linear issues through a small workflow without letting
-separate loops overwrite each other.
+Default use is local: the agent or AG platform can access the user's home directory,
+runtime state lives in `~/.linear-loop`, and each schedule receives one self-contained
+prompt from `dist/zh-CN/prompts/*.standalone.md`.
 
-The intended shape is:
+For setup, start with [INSTALL.zh-CN.md](INSTALL.zh-CN.md).
 
-```text
-Linear issues
-  -> scheduled state loops
-     -> Triage / Backlog / Todo / In Progress / In Review / terminal loops
-  -> service loops
-     -> Discovery / Repo Manager / Memory-Reconcile
-  -> Coordinator
-     -> conflicts, stale runs, unknown states, lock problems, multi-repo work
-```
-
-State loops do normal work. Coordinator handles exceptions.
-
-## What Is In This Repo
-
-- `prompts/` - One prompt per loop role.
-- `schemas/loop-result.schema.json` - Required JSON shape for loop output.
-- `scripts/validate-loop-schema.py` - Local protocol check for the schema and fixtures.
-- `tests/fixtures/loop-results/` - Example valid and invalid loop results.
-- `docs/linear-loop-system-spec.md` - Full operating model.
-- `docs/workflow-simulation-and-edge-cases.md` - Expected behavior for common and
-  failure-path runs.
-- `examples/memory-issue.json` - Example issue memory record.
-
-## Operating Model
-
-Each visible Linear state has its own scheduled loop:
+## Shape
 
 ```text
-Triage -> Backlog -> Todo -> In Progress -> In Review -> Done
+Linear
+  -> visible states: Triage / Backlog / Todo / In Progress / In Review / Done
+  -> terminal maintenance: Canceled / Duplicate
+  -> internal services: Discovery / Repo Manager / Memory-Reconcile / Coordinator
+
+~/.linear-loop
+  -> memory / repos / worktrees / runtime issue logs
 ```
 
-`Canceled` and `Duplicate` are terminal maintenance loops.
+Linear is the collaboration surface. `~/.linear-loop` is the local runtime space.
 
-Discovery is internal by default. A code-backed issue does not move to `Todo` until
-Discovery has produced a fresh report.
+Coordinator handles exceptions only: conflicts, stale runs, unknown states, lock
+problems, and multi-repo coordination.
 
-Every state loop follows the same write rule:
+## User-Facing Files
 
-1. Scan only the state it owns.
-2. Claim an issue by creating or reusing a run reservation.
-3. Record the observed Linear and memory snapshot.
-4. Run the matching prompt.
-5. Validate the JSON result.
-6. Re-read Linear and memory.
-7. Apply only if state, `updatedAt`, fingerprint, active run, and relevant lease or
-   lock data still match.
-8. If the check fails, do not apply. Escalate to Coordinator.
+- [INSTALL.zh-CN.md](INSTALL.zh-CN.md) - local installation and startup.
+- [dist/zh-CN/prompts/](dist/zh-CN/prompts/) - standalone prompts to paste into
+  schedules.
 
-This is the main safety rule. Do not replace it with a best-effort update.
+Do not paste source prompts from `prompts/` into schedules. They are modular sources
+and do not embed the shared contract.
 
-## Minimum Runner Requirements
+## Local Loop Space
 
-A platform using these prompts needs:
+The default runtime directory is:
 
-- Linear read/write access for issues, comments, labels, projects, and statuses.
-- A persistent memory store for fingerprints, runs, discovery reports, locks, and
-  cooldowns.
-- A runtime issue log, normally `memory/runtime-issues/YYYY-MM.jsonl`, for problems
-  found while the loops run.
-- Linear Project agent settings for repository origins and verification commands.
-  Agents must not infer clone URLs.
-- A way to run one prompt per loop role and validate JSON output.
-- Repo Manager access for clone, fetch, worktree, read lease, write lock, baseline,
-  and verification commands.
+```text
+~/.linear-loop/config.yaml
+~/.linear-loop/memory/issues/
+~/.linear-loop/memory/discovery/
+~/.linear-loop/memory/repos/
+~/.linear-loop/memory/projects/
+~/.linear-loop/memory/decisions/
+~/.linear-loop/memory/runs/
+~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl
+~/.linear-loop/repos/
+~/.linear-loop/worktrees/
+```
 
-If your platform only supports schedules, schedule the state loops separately. Do not
-schedule every loop against every issue.
+Repository origins, default branches, and verification commands still belong in
+Linear Project `Agent Project Settings`. The local directory stores runtime evidence
+and cache only.
 
-## Quick Start
+## Maintainer Files
 
-1. Run [prompts/initial-loop.md](prompts/initial-loop.md) against the Linear
-   workspace.
-2. Fill in each managed Linear Project's Agent Project Settings.
-3. Load `schemas/loop-result.schema.json` into your runner's output validation step.
-4. Configure one scheduled job per visible state:
+- [prompts/](prompts/) - modular prompt sources.
+- [schemas/loop-result.schema.json](schemas/loop-result.schema.json) - loop output
+  shape.
+- [scripts/build-standalone-prompts.py](scripts/build-standalone-prompts.py) -
+  generates the copy pack.
+- [scripts/validate-copy-pack.py](scripts/validate-copy-pack.py) - validates the copy
+  pack.
+- [scripts/validate-loop-schema.py](scripts/validate-loop-schema.py) - validates schema
+  and fixtures.
+- [docs/usage.md](docs/usage.md) - operating notes for schedules, handoffs, and
+  maintenance.
 
-   ```text
-   Triage       -> prompts/triage-loop.md
-   Backlog      -> prompts/backlog-loop.md
-   Todo         -> prompts/todo-loop.md
-   In Progress  -> prompts/in-progress-loop.md
-   In Review    -> prompts/in-review-loop.md
-   Done         -> prompts/done-loop.md
-   Canceled     -> prompts/canceled-loop.md
-   Duplicate    -> prompts/duplicate-loop.md
-   ```
-
-5. Configure service loops:
-
-   ```text
-   Discovery        -> prompts/discovery-loop.md
-   Repo Manager     -> prompts/repo-manager.md
-   Memory/Reconcile -> prompts/memory-reconcile-loop.md
-   Coordinator      -> prompts/coordinator-loop.md
-   ```
-
-6. Make each state loop process only its owned source state.
-7. Make each state loop perform the claim and compare-and-set check before writing.
-8. Route `requestedWorker` handoffs to the matching service loop.
-9. Route `escalation.target: "coordinator"` to Coordinator.
-
-More detail is in [docs/usage.md](docs/usage.md).
-
-## Validate Changes
-
-Run this after changing schema, prompts, or fixtures:
+After changing prompts, run:
 
 ```sh
+python3 scripts/build-standalone-prompts.py
+python3 scripts/build-standalone-prompts.py --check
+python3 scripts/validate-copy-pack.py
 python3 scripts/validate-loop-schema.py
 ```
 
-Expected output:
+## Write Rule
 
-```text
-validated schema shape and 5 fixtures
-```
+Each state loop must:
 
-## What Not To Do
+1. Scan only the Linear state it owns.
+2. Claim an issue and record the observed Linear and `~/.linear-loop` snapshot.
+3. Run the matching standalone prompt.
+4. Return JSON.
+5. Re-read Linear and local memory before writing.
+6. Apply only if state, `updatedAt`, fingerprint, active run, and lease or lock data
+   still match.
+7. Escalate to Coordinator when the snapshot is stale.
 
-- Do not let every loop scan every Linear issue.
+This rule is the safety boundary.
+
+## Do Not
+
+- Do not let every loop scan every issue.
 - Do not let a state loop write after its observed snapshot is stale.
 - Do not let code-backed work enter `Todo` without a fresh Discovery report.
-- Do not let implementation run without a Repo Manager write lock.
+- Do not let In Progress modify code without a Repo Manager write lock.
 - Do not use Coordinator for routine state movement.
-- Do not hide runner, prompt, schema, access, or setup problems in free-form comments;
-  emit `runtimeIssues[]` so the next iteration has evidence.
+- Do not hide prompt, schema, access, Linear setup, or local storage problems in
+  comments only; emit `runtimeIssues[]` and append them to
+  `~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl`.
