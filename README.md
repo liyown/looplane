@@ -1,5 +1,7 @@
 # Linear Loop System
 
+中文文档: [README.zh-CN.md](README.zh-CN.md)
+
 This repository defines a Linear-based work loop for local agents.
 
 It is not a runner. It contains the prompts, schema, examples, and operating rules a
