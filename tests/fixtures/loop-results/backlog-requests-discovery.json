@@ -1,0 +1,28 @@
+{
+  "expectValid": true,
+  "result": {
+    "status": "completed",
+    "reason": "Code-backed target is confirmed and needs fresh read-only discovery before Todo.",
+    "observed": {
+      "issueId": "ABC-123",
+      "runId": "run-20260617-backlog-abc123",
+      "loop": "backlog",
+      "workerId": "local-agent-1",
+      "fingerprint": "sha256:issue"
+    },
+    "nextState": "Backlog",
+    "requestedWorker": "discovery",
+    "targetPatch": {
+      "kind": "code",
+      "status": "confirmed",
+      "repo": "product-a-app",
+      "confidence": "high",
+      "evidence": [
+        {
+          "source": "project-default",
+          "detail": "Product A maps to product-a-app."
+        }
+      ]
+    }
+  }
+}

@@ -1,0 +1,39 @@
+{
+  "expectValid": true,
+  "result": {
+    "status": "completed",
+    "reason": "Execution brief is ready and cites fresh Discovery evidence.",
+    "observed": {
+      "issueId": "ABC-123",
+      "runId": "run-20260617-todo-abc123",
+      "loop": "todo",
+      "fingerprint": "sha256:issue"
+    },
+    "nextState": "In Progress",
+    "executionBrief": {
+      "goal": "Fix billing proration for plan upgrades.",
+      "nonGoals": ["Do not change invoice PDF rendering."],
+      "acceptanceCriteria": ["Upgrade proration uses the remaining billing period."],
+      "target": {
+        "kind": "code",
+        "status": "confirmed",
+        "repo": "product-a-app",
+        "confidence": "high",
+        "evidence": [
+          {
+            "source": "discovery-report",
+            "detail": "Discovery inspected billing module and tests."
+          }
+        ]
+      },
+      "discoveryReportRef": "memory/discovery/ABC-123.json",
+      "likelyChangeAreas": ["src/modules/billing"],
+      "verification": {
+        "commands": ["pnpm test -- billing"],
+        "unavailableReason": null
+      },
+      "risks": ["Existing baseline may be slow."],
+      "rollback": "Revert the issue branch or worktree changes."
+    }
+  }
+}

@@ -1,0 +1,69 @@
+version: 1
+
+workspaceRoot: ~/workspace
+repoRoot: ~/workspace/repos
+worktreeRoot: ~/workspace/worktrees
+memoryRoot: ./memory
+
+projects:
+  product-a:
+    linearProject: Product A
+    defaultMode: Mode/Hybrid
+    defaultTarget:
+      kind: code
+      repo: product-a-app
+      confidence: high
+    componentMap:
+      Area/Frontend:
+        kind: code
+        repo: product-a-app
+        confidence: high
+      Area/API:
+        kind: code
+        repo: product-a-api
+        confidence: high
+      Area/Docs:
+        kind: code
+        repo: product-a-docs
+        confidence: high
+      Area/Product:
+        kind: parent
+        confidence: high
+    repos:
+      app:
+        slug: product-a-app
+        origin: git@github.com:org/product-a.git
+        localPath: ~/workspace/repos/product-a/app
+        defaultBranch: main
+        verify:
+          test: pnpm test
+      api:
+        slug: product-a-api
+        origin: git@github.com:org/product-a-api.git
+        localPath: ~/workspace/repos/product-a/api
+        defaultBranch: main
+        verify:
+          test: pnpm test
+      docs:
+        slug: product-a-docs
+        origin: git@github.com:org/product-a-docs.git
+        localPath: ~/workspace/repos/product-a/docs
+        defaultBranch: main
+        verify:
+          lint: markdownlint .
+
+  product-b:
+    linearProject: Product B
+    defaultMode: Mode/Auto
+    defaultTarget:
+      kind: code
+      repo: product-b-service
+      confidence: high
+    repos:
+      service:
+        slug: product-b-service
+        origin: git@github.com:org/product-b-service.git
+        localPath: ~/workspace/repos/product-b/service
+        defaultBranch: main
+        verify:
+          test: npm test
