@@ -66,10 +66,10 @@ marking, and safe retry conditions.
 
 ## Runtime Issue Rollup
 
-Read `memory/runtime-issues/` when available. Group repeated records by category,
-summary, and suggested change. Recommend Coordinator action when the same issue keeps
-appearing or when severity is `high` or `critical`.
+Read `~/.linear-loop/memory/runtime-issues/` when available. Group repeated records by
+category, summary, and suggested change. Recommend Coordinator action when the same
+issue keeps appearing or when severity is `high` or `critical`.
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`.
+Return JSON per the shared loop contract.

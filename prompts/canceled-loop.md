@@ -20,4 +20,4 @@ automation accidentally.
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`. Usually `nextState` remains `Canceled`.
+Return JSON per the shared loop contract. Usually `nextState` remains `Canceled`.

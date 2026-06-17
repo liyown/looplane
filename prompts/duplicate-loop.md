@@ -20,4 +20,4 @@ canonical issue.
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`. Usually `nextState` remains `Duplicate`.
+Return JSON per the shared loop contract. Usually `nextState` remains `Duplicate`.

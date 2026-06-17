@@ -54,5 +54,5 @@ Return to Backlog when:
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`. In default mode, do not request
+Return JSON per the shared loop contract. In default mode, do not request
 `nextState: "Discovery"`.

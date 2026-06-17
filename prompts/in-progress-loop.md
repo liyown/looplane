@@ -64,4 +64,4 @@ You are the In Progress loop. You implement the approved execution brief.
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`.
+Return JSON per the shared loop contract.

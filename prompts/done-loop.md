@@ -28,4 +28,4 @@ You are the Done loop. You perform terminal bookkeeping for completed issues.
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`. Usually `nextState` remains `Done`.
+Return JSON per the shared loop contract. Usually `nextState` remains `Done`.

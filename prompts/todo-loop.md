@@ -63,4 +63,4 @@ stale run, CAS conflict, or human/automation drift needs Coordinator handling.
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`.
+Return JSON per the shared loop contract.

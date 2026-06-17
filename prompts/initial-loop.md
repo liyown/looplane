@@ -7,6 +7,41 @@ leave the user with exact start instructions.
 
 Run this before scheduling the state loops.
 
+## Local Loop Space
+
+Create or verify the local runtime directory before configuring schedules:
+
+```text
+~/.linear-loop/config.yaml
+~/.linear-loop/memory/issues/
+~/.linear-loop/memory/discovery/
+~/.linear-loop/memory/repos/
+~/.linear-loop/memory/projects/
+~/.linear-loop/memory/decisions/
+~/.linear-loop/memory/runs/
+~/.linear-loop/memory/runtime-issues/
+~/.linear-loop/repos/
+~/.linear-loop/worktrees/
+```
+
+`~/.linear-loop` is the runtime space. This prompt repository is only the source for
+maintained prompts, schema, examples, and generated copy packs.
+
+If `config.yaml` is missing, create a minimal file with:
+
+```yaml
+agent:
+  version: 1
+  loopSpace: ~/.linear-loop
+  linear:
+    workspace: null
+  schedules:
+    copyPack: dist/zh-CN/prompts
+```
+
+If the schedule cannot access the user's local home directory, stop and return a
+runtime issue. Do not continue with volatile storage.
+
 ## Default Setup
 
 Configure or verify the visible workflow:
@@ -90,16 +125,18 @@ Do not invent repository origins.
 
 Create or verify:
 
-- `memory/issues/`
-- `memory/discovery/`
-- `memory/repos/`
-- `memory/projects/`
-- `memory/decisions/`
-- `memory/runs/`
-- `memory/runtime-issues/`
+- `~/.linear-loop/memory/issues/`
+- `~/.linear-loop/memory/discovery/`
+- `~/.linear-loop/memory/repos/`
+- `~/.linear-loop/memory/projects/`
+- `~/.linear-loop/memory/decisions/`
+- `~/.linear-loop/memory/runs/`
+- `~/.linear-loop/memory/runtime-issues/`
+- `~/.linear-loop/repos/`
+- `~/.linear-loop/worktrees/`
 
-If the platform does not expose a filesystem, tell the user which persistent store
-must hold the same records.
+If the local filesystem cannot be used, return `requiresHuman: true` with the exact
+storage problem. The default system assumes local execution.
 
 ## Healthcheck
 
@@ -114,14 +151,32 @@ Create a no-code healthcheck issue that proves:
 
 End your response with a short section named `Start the system`. Include:
 
-1. Which visible state loops to schedule and which prompt file each one uses.
+1. Which visible state loops to schedule and which standalone prompt each one uses.
 2. Which service loops to configure for handoffs.
 3. The compare-and-set write rule the runner must enforce before any state loop
    writes to Linear.
 4. A reminder that code-backed issues need `Agent Project Settings` repo origins and a
    fresh Discovery report before Todo.
-5. The runtime issue log path: `memory/runtime-issues/YYYY-MM.jsonl`.
+5. The runtime issue log path:
+   `~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl`.
 6. Any manual Linear UI steps that the API/tooling could not complete.
+
+Use these standalone prompt names in the instructions:
+
+```text
+Triage       -> dist/zh-CN/prompts/triage-loop.standalone.md
+Backlog      -> dist/zh-CN/prompts/backlog-loop.standalone.md
+Todo         -> dist/zh-CN/prompts/todo-loop.standalone.md
+In Progress  -> dist/zh-CN/prompts/in-progress-loop.standalone.md
+In Review    -> dist/zh-CN/prompts/in-review-loop.standalone.md
+Done         -> dist/zh-CN/prompts/done-loop.standalone.md
+Canceled     -> dist/zh-CN/prompts/canceled-loop.standalone.md
+Duplicate    -> dist/zh-CN/prompts/duplicate-loop.standalone.md
+Discovery        -> dist/zh-CN/prompts/discovery-loop.standalone.md
+Repo Manager     -> dist/zh-CN/prompts/repo-manager.standalone.md
+Memory/Reconcile -> dist/zh-CN/prompts/memory-reconcile-loop.standalone.md
+Coordinator      -> dist/zh-CN/prompts/coordinator-loop.standalone.md
+```
 
 If Linear workflow configuration requires manual UI work, return `requiresHuman: true`
 and list the exact manual steps.

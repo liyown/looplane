@@ -80,4 +80,4 @@ timestamp, pass/fail, and a concise output summary. If baseline fails, report
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`.
+Return JSON per the shared loop contract.

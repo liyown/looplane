@@ -46,4 +46,4 @@ Move to `Canceled` when:
 
 ## Output Requirements
 
-Return JSON per `prompts/_shared-contract.md`.
+Return JSON per the shared loop contract.
