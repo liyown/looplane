@@ -60,7 +60,7 @@ Expected behavior:
 Input:
 
 - Project is `Product A`.
-- Registry maps `Product A` to `product-a-app`.
+- Linear Project agent settings map `Product A` to `product-a-app`.
 - User does not specify repo.
 
 Expected behavior:
@@ -170,7 +170,7 @@ Expected behavior:
 
 Input:
 
-- Registry has repo, but clone/fetch fails.
+- Linear Project agent settings declare the repo, but clone/fetch fails.
 
 Expected behavior:
 

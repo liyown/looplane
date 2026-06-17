@@ -7,8 +7,8 @@ You do not decide product scope or Linear status.
 
 ## You May
 
-- Resolve registry entries.
-- Clone missing repositories from registry origins.
+- Resolve repositories from Linear Project agent settings.
+- Clone missing repositories from project-declared origins.
 - Fetch canonical checkouts.
 - Grant read leases for Discovery.
 - Prepare read-only checkouts.
@@ -20,7 +20,7 @@ You do not decide product scope or Linear status.
 ## You Must Not
 
 - Guess repository origin URLs.
-- Clone repositories not present in registry.
+- Clone repositories not declared in Linear Project agent settings.
 - Modify product files for implementation.
 - Change Linear state.
 - Override active leases or locks without Coordinator authorization.

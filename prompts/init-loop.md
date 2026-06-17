@@ -34,7 +34,8 @@ Create or verify label groups:
 - `Target/*`
 
 Optionally create `Repo/*` only for small workspaces that want repository labels in
-Linear. Large workspaces should keep exact repo slugs in registry/memory.
+Linear. Default repository targets should live in Linear Project agent settings and
+memory, not a separate local project map file.
 
 Create or verify control labels:
 
@@ -56,7 +57,7 @@ states, flaky tests, release notes, or more specific decision blockers.
 Create or verify:
 
 - `Loop Operating Manual`
-- `Repository Registry`
+- `Agent Project Settings` on each managed Linear Project
 - `Agent Guidance`
 - `Decision Log`
 - issue templates for Bug, Feature, Improvement, Spike, Chore
@@ -65,7 +66,6 @@ Create or verify:
 
 Create or verify:
 
-- `examples/repo-registry.yaml`
 - `memory/issues/`
 - `memory/discovery/`
 - `memory/repos/`

@@ -29,7 +29,7 @@
         "state": { "type": "string" },
         "labelsHash": { "type": "string" },
         "descriptionHash": { "type": "string" },
-        "registryVersion": { "type": ["integer", "string"] },
+        "projectConfigVersion": { "type": ["integer", "string"] },
         "memoryVersion": { "type": ["integer", "string"] },
         "leaseId": { "type": "string" }
       }

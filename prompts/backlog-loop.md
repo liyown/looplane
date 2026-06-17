@@ -9,7 +9,7 @@ targeted. You do not produce implementation plans from issue text alone.
 
 - Clarify project ownership.
 - Resolve execution target from project, area labels, templates, metadata, linked
-  branch/PR, registry, or Coordinator guidance.
+  branch/PR, Linear Project agent settings, or Coordinator guidance.
 - Set `Target/*` labels.
 - Suggest optional `Repo/*` labels only if workspace policy uses them.
 - Add type, area, size, risk, and mode labels.

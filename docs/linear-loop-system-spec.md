@@ -46,16 +46,16 @@ References:
 2. **Local memory is runtime state.**
    It stores fingerprints, resolved targets, discovery reports, active runs, leases,
    locks, baseline results, cooldowns, and stale run records. It should be rebuildable
-   from Linear, registry, and Git with some loss of convenience.
+   from Linear Project settings and Git with some loss of convenience.
 
 3. **Todo means evidence-backed.**
    A code-backed issue cannot enter Todo only from issue text. It needs a fresh
    read-only Discovery report.
 
 4. **Users do not have to declare repositories.**
-   The system infers an execution target from Linear project, area labels, issue
-   templates, registry rules, linked branches/PRs, and historical similarity. It asks
-   for help only when confidence is low or conflicting.
+   The system infers an execution target from Linear Project settings, area labels,
+   issue templates, linked branches/PRs, and historical similarity. It asks for help
+   only when confidence is low or conflicting.
 
 5. **State loops own normal progression.**
    Each visible state has a loop that may scan, claim, process, and apply allowed
@@ -127,7 +127,7 @@ Initializes Linear and local system state:
 - Enables or documents Triage setup.
 - Creates the default label set.
 - Creates operating docs and issue templates.
-- Creates the local registry and memory directories.
+- Creates Linear Project agent settings and local memory directories.
 - Creates a no-code healthcheck issue.
 
 If API/tooling cannot create statuses or Triage settings, Init returns a manual
@@ -139,7 +139,7 @@ State loops own normal progression for their source states:
 
 - Scan only the Linear state they own.
 - Create or reuse active run reservations for claimed issues.
-- Build their own context from Linear, registry, and memory.
+- Build their own context from Linear, Linear Project settings, and memory.
 - Enforce their state-specific gates.
 - Re-read Linear and memory before applying changes.
 - Apply only allowed transitions when the observed snapshot still matches.
@@ -176,8 +176,8 @@ Discovery is an internal worker, not a default Linear state:
 
 Repo Manager owns local Git/filesystem safety:
 
-- Resolves registry entries.
-- Clones missing repositories only from registry origins.
+- Resolves repositories from Linear Project agent settings.
+- Clones missing repositories only from project-declared origins.
 - Fetches canonical checkouts.
 - Grants read leases for Discovery.
 - Creates issue-scoped worktrees for implementation.
@@ -230,8 +230,8 @@ external-service -> no-code with needs-access when credentials/tools are missing
 Target resolution order:
 
 1. Explicit `Target/*`, optional `Repo/*`, or issue metadata.
-2. Linear Project default target in registry.
-3. Area/component mapping in registry.
+2. Linear Project default target in Agent Project Settings.
+3. Area/component mapping in Agent Project Settings.
 4. Issue template defaults.
 5. Linked branch, PR, or commit metadata.
 6. Historical similar issues as advisory evidence only.
@@ -319,38 +319,38 @@ If a human removes a human-owned label, the system must not immediately re-add i
 If a gate still fails, the owning state loop writes one concise comment and uses the
 smallest blocking label that already exists in the default set.
 
-## 8. Repository Registry
+## 8. Linear Project Agent Settings
 
-Minimum registry example:
+Each managed Linear Project should contain an `Agent Project Settings` section or
+linked document. This is the default place for target and repository configuration.
+Use a fenced YAML block so a runner can parse it consistently:
 
 ```yaml
-version: 1
-workspaceRoot: ~/workspace
-repoRoot: ~/workspace/repos
-worktreeRoot: ~/workspace/worktrees
-memoryRoot: ./memory
-
-projects:
-  product-a:
-    linearProject: Product A
-    defaultTarget:
+agent:
+  version: 1
+  defaultTarget:
+    kind: code
+    repo: product-a-app
+    confidence: high
+  repos:
+    product-a-app:
+      origin: git@github.com:org/product-a.git
+      defaultBranch: main
+      verify:
+        test: pnpm test
+  componentMap:
+    Area/Frontend:
       kind: code
       repo: product-a-app
       confidence: high
-    repos:
-      app:
-        slug: product-a-app
-        origin: git@github.com:org/product-a.git
-        localPath: ~/workspace/repos/product-a/app
-        defaultBranch: main
-        verify:
-          test: pnpm test
 ```
 
-Registry is the only source for repository origin URLs. Agents never infer clone URLs.
+Linear Project agent settings are the source for repository origin URLs. Agents never
+infer clone URLs.
 
-Optional registry fields can define component maps, branch patterns, worktree roots,
-lease durations, package managers, and verification command sets.
+Optional project settings can define component maps, branch patterns, package
+managers, and verification command sets. Local worktree roots and lease durations are
+runner configuration, not Linear project data.
 
 ## 9. Discovery Report
 
@@ -374,7 +374,7 @@ Code-backed Todo requires a fresh Discovery report. The minimum v1 report is:
   "createdAt": "2026-06-17T18:30:00+08:00",
   "freshness": {
     "issueFingerprint": "sha256:...",
-    "registryVersion": 1
+    "projectConfigVersion": 1
   }
 }
 ```
@@ -382,8 +382,9 @@ Code-backed Todo requires a fresh Discovery report. The minimum v1 report is:
 Optional fields such as commands run, architecture facts, dependency notes, and risk
 analysis are useful, but not required for v1.
 
-Discovery is stale when issue description, acceptance criteria, target, registry
-version, relevant repo HEAD, or human labels changed enough to invalidate evidence.
+Discovery is stale when issue description, acceptance criteria, target, project
+configuration version, relevant repo HEAD, or human labels changed enough to
+invalidate evidence.
 
 ## 10. Memory and Concurrency Model
 
@@ -429,7 +430,7 @@ labels
 title/description hash
 project id
 target kind/status/repo
-registry version
+project configuration version
 repo HEAD, if relevant
 discovery report hash, if present
 memory version

@@ -27,8 +27,8 @@ marking, and safe retry conditions.
 ## Drift Rules
 
 - Linear current state is the collaboration truth.
-- Local memory is stale if issue updatedAt, labels, description hash, target, registry
-  version, or relevant repo HEAD no longer match.
+- Local memory is stale if issue updatedAt, labels, description hash, target, Linear
+  Project settings version, or relevant repo HEAD no longer match.
 - Worker output is stale if its observed snapshot no longer matches current Linear or
   its run reservation is no longer active.
 - Discovery is stale if its freshness inputs no longer match current context.

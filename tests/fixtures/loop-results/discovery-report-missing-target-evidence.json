@@ -27,7 +27,7 @@
       "createdAt": "2026-06-17T18:30:00+08:00",
       "freshness": {
         "issueFingerprint": "sha256:issue",
-        "registryVersion": 1
+        "projectConfigVersion": 1
       }
     }
   }

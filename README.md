@@ -29,7 +29,6 @@ State loops do normal work. Coordinator handles exceptions.
 - `docs/linear-loop-system-spec.md` - Full operating model.
 - `docs/workflow-simulation-and-edge-cases.md` - Expected behavior for common and
   failure-path runs.
-- `examples/repo-registry.yaml` - Example project-to-repository mapping.
 - `examples/memory-issue.json` - Example issue memory record.
 
 ## Operating Model
@@ -66,7 +65,8 @@ A platform using these prompts needs:
 - Linear read/write access for issues, comments, labels, projects, and statuses.
 - A persistent memory store for fingerprints, runs, discovery reports, locks, and
   cooldowns.
-- A repository registry. Agents must not infer clone URLs.
+- Linear Project agent settings for repository origins and verification commands.
+  Agents must not infer clone URLs.
 - A way to run one prompt per loop role and validate JSON output.
 - Repo Manager access for clone, fetch, worktree, read lease, write lock, baseline,
   and verification commands.
@@ -76,9 +76,10 @@ schedule every loop against every issue.
 
 ## Quick Start
 
-1. Copy `examples/repo-registry.yaml` and replace the project and repository values.
-2. Load `schemas/loop-result.schema.json` into your runner's output validation step.
-3. Configure one scheduled job per visible state:
+1. Run the Initial loop against the Linear workspace.
+2. Fill in each managed Linear Project's Agent Project Settings.
+3. Load `schemas/loop-result.schema.json` into your runner's output validation step.
+4. Configure one scheduled job per visible state:
 
    ```text
    Triage       -> prompts/triage-loop.md
@@ -91,7 +92,7 @@ schedule every loop against every issue.
    Duplicate    -> prompts/duplicate-loop.md
    ```
 
-4. Configure service loops:
+5. Configure service loops:
 
    ```text
    Discovery        -> prompts/discovery-loop.md
@@ -100,10 +101,10 @@ schedule every loop against every issue.
    Coordinator      -> prompts/coordinator-loop.md
    ```
 
-5. Make each state loop process only its owned source state.
-6. Make each state loop perform the claim and compare-and-set check before writing.
-7. Route `requestedWorker` handoffs to the matching service loop.
-8. Route `escalation.target: "coordinator"` to Coordinator.
+6. Make each state loop process only its owned source state.
+7. Make each state loop perform the claim and compare-and-set check before writing.
+8. Route `requestedWorker` handoffs to the matching service loop.
+9. Route `escalation.target: "coordinator"` to Coordinator.
 
 More detail is in [docs/usage.md](docs/usage.md).
 

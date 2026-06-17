@@ -13,7 +13,8 @@ Coordinator process only work addressed to their role.
 
 - Linear is the human-visible collaboration source of truth.
 - Local memory is runtime execution state.
-- Repository registry is the only source for repository origin URLs.
+- Linear Project agent settings are the source for repository origin URLs and default
+  verification commands.
 - State loops own normal state-local progression after fresh compare-and-set checks.
 - Coordinator owns reconciliation, conflict resolution, global invariants, and
   exceptional routing.
@@ -33,7 +34,7 @@ The context pack should include:
 - project information
 - execution target
 - discovery report, if one exists
-- registry slice
+- Linear Project agent settings, if the issue is project-backed
 - issue/project/repo memory
 - active run and lease information relevant to the issue
 - allowed actions and transitions

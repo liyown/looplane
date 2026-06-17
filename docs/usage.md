@@ -101,20 +101,52 @@ Canceled / Duplicate
 Default labels are defined in [docs/linear-loop-system-spec.md](linear-loop-system-spec.md).
 
 Keep repository data out of high-cardinality labels unless the workspace is small.
-The registry should carry repository origins and default verification commands.
+Repository origins and default verification commands belong in Linear Project agent
+settings.
 
-## Repository Registry
+## Linear Project Agent Settings
 
-Start from [examples/repo-registry.yaml](../examples/repo-registry.yaml).
+Store project-level agent settings on the Linear Project, either in the project
+description or in a linked project document named `Agent Project Settings`.
 
-The registry is the only source for clone URLs. A loop may infer a target repo slug
-from project, area, template, linked PR, or history, but Repo Manager may clone only
-origins present in the registry.
+Use a fenced YAML block so runners can parse it without guessing:
+
+```yaml
+agent:
+  version: 1
+  defaultTarget:
+    kind: code
+    repo: product-a-app
+    confidence: high
+  repos:
+    product-a-app:
+      origin: git@github.com:org/product-a.git
+      defaultBranch: main
+      verify:
+        test: pnpm test
+    product-a-api:
+      origin: git@github.com:org/product-a-api.git
+      defaultBranch: main
+      verify:
+        test: pnpm test
+  componentMap:
+    Area/Frontend:
+      kind: code
+      repo: product-a-app
+      confidence: high
+    Area/API:
+      kind: code
+      repo: product-a-api
+      confidence: high
+```
+
+A loop may infer a repo slug from project, area, template, linked PR, or history.
+Repo Manager may clone only origins declared in the Linear Project settings.
 
 ## Memory
 
-Memory is runtime state. It should be rebuildable from Linear, registry, and Git with
-some loss of convenience.
+Memory is runtime state. It should be rebuildable from Linear Project settings and
+Git with some loss of convenience.
 
 Suggested paths:
 
