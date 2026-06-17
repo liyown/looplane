@@ -1,70 +1,130 @@
-# Linear Agent Loop System
+# Linear Loop System
 
-This repository defines a generic Linear-driven local agent loop collaboration system.
-It is designed to work with an empty Linear workspace after initialization, and to
-scale to multiple projects, repositories, and local agent workers.
+This repository defines a Linear-based work loop for local agents.
 
-The default profile is intentionally small: Linear stays readable, state loops own
-normal progression for their source states, and the Coordinator loop owns exception
-handling, conflict resolution, and cross-loop reconciliation.
+It is not a runner. It contains the prompts, schema, examples, and operating rules a
+runner needs in order to move Linear issues through a small workflow without letting
+separate loops overwrite each other.
 
-## Artifacts
-
-- `docs/linear-loop-system-spec.md` - System design, workflow, state machine, labels,
-  repository registry, memory model, and edge-case handling.
-- `docs/workflow-simulation-and-edge-cases.md` - Normal and failure-path simulations
-  used to validate the workflow design.
-- `prompts/` - Prompt files for the Coordinator loop, init loop, repo manager behavior,
-  internal Discovery worker, and every visible Linear issue state loop.
-- `schemas/loop-result.schema.json` - Structured output contract for every loop,
-  including escalation signals and core Discovery/Todo evidence fields.
-- `scripts/validate-loop-schema.py` - Lightweight local protocol validator for schema
-  shape and example loop results.
-- `tests/fixtures/loop-results/` - Positive and negative loop-result examples used by
-  the validator.
-- `examples/repo-registry.yaml` - Example project/repository registry.
-- `examples/memory-issue.json` - Example per-issue execution memory.
-
-## Validation
-
-Run the local protocol validator after changing the loop-result schema, prompts, or
-fixtures:
-
-```sh
-python3 scripts/validate-loop-schema.py
-```
-
-## Core Idea
-
-Linear is the human-visible collaboration source of truth. Local memory is runtime
-execution state. Each state loop may scan, claim, process, and apply allowed
-transitions for the Linear state it owns. Before applying, a state loop re-reads
-Linear and memory and applies only when its observed snapshot still matches. The
-Coordinator loop handles CAS conflicts, stale runs, duplicate executors, unknown
-states, manual edits, GitHub automation drift, and cross-repo coordination.
+The intended shape is:
 
 ```text
-Linear workspace
-  -> Scheduled state loops
+Linear issues
+  -> scheduled state loops
      -> Triage / Backlog / Todo / In Progress / In Review / terminal loops
-     -> Discovery worker through Backlog/Todo handoff
-     -> Repo Manager for leases, locks, worktrees, and verification
-  -> Coordinator loop for exceptions and reconciliation
-  -> Linear updates
+  -> service loops
+     -> Discovery / Repo Manager / Memory-Reconcile
+  -> Coordinator
+     -> conflicts, stale runs, unknown states, lock problems, multi-repo work
 ```
 
-The default visible issue flow stays simple:
+State loops do normal work. Coordinator handles exceptions.
+
+## What Is In This Repo
+
+- `prompts/` - One prompt per loop role.
+- `schemas/loop-result.schema.json` - Required JSON shape for loop output.
+- `scripts/validate-loop-schema.py` - Local protocol check for the schema and fixtures.
+- `tests/fixtures/loop-results/` - Example valid and invalid loop results.
+- `docs/linear-loop-system-spec.md` - Full operating model.
+- `docs/workflow-simulation-and-edge-cases.md` - Expected behavior for common and
+  failure-path runs.
+- `examples/repo-registry.yaml` - Example project-to-repository mapping.
+- `examples/memory-issue.json` - Example issue memory record.
+
+## Operating Model
+
+Each visible Linear state has its own scheduled loop:
 
 ```text
 Triage -> Backlog -> Todo -> In Progress -> In Review -> Done
 ```
 
-Code-backed issues pass through an internal read-only Discovery gate before
-Todo, but Discovery is not a default Linear board state.
+`Canceled` and `Duplicate` are terminal maintenance loops.
 
-Terminal paths:
+Discovery is internal by default. A code-backed issue does not move to `Todo` until
+Discovery has produced a fresh report.
+
+Every state loop follows the same write rule:
+
+1. Scan only the state it owns.
+2. Claim an issue by creating or reusing a run reservation.
+3. Record the observed Linear and memory snapshot.
+4. Run the matching prompt.
+5. Validate the JSON result.
+6. Re-read Linear and memory.
+7. Apply only if state, `updatedAt`, fingerprint, active run, and relevant lease or
+   lock data still match.
+8. If the check fails, do not apply. Escalate to Coordinator.
+
+This is the main safety rule. Do not replace it with a best-effort update.
+
+## Minimum Runner Requirements
+
+A platform using these prompts needs:
+
+- Linear read/write access for issues, comments, labels, projects, and statuses.
+- A persistent memory store for fingerprints, runs, discovery reports, locks, and
+  cooldowns.
+- A repository registry. Agents must not infer clone URLs.
+- A way to run one prompt per loop role and validate JSON output.
+- Repo Manager access for clone, fetch, worktree, read lease, write lock, baseline,
+  and verification commands.
+
+If your platform only supports schedules, schedule the state loops separately. Do not
+schedule every loop against every issue.
+
+## Quick Start
+
+1. Copy `examples/repo-registry.yaml` and replace the project and repository values.
+2. Load `schemas/loop-result.schema.json` into your runner's output validation step.
+3. Configure one scheduled job per visible state:
+
+   ```text
+   Triage       -> prompts/triage-loop.md
+   Backlog      -> prompts/backlog-loop.md
+   Todo         -> prompts/todo-loop.md
+   In Progress  -> prompts/in-progress-loop.md
+   In Review    -> prompts/in-review-loop.md
+   Done         -> prompts/done-loop.md
+   Canceled     -> prompts/canceled-loop.md
+   Duplicate    -> prompts/duplicate-loop.md
+   ```
+
+4. Configure service loops:
+
+   ```text
+   Discovery        -> prompts/discovery-loop.md
+   Repo Manager     -> prompts/repo-manager.md
+   Memory/Reconcile -> prompts/memory-reconcile-loop.md
+   Coordinator      -> prompts/coordinator-loop.md
+   ```
+
+5. Make each state loop process only its owned source state.
+6. Make each state loop perform the claim and compare-and-set check before writing.
+7. Route `requestedWorker` handoffs to the matching service loop.
+8. Route `escalation.target: "coordinator"` to Coordinator.
+
+More detail is in [docs/usage.md](docs/usage.md).
+
+## Validate Changes
+
+Run this after changing schema, prompts, or fixtures:
+
+```sh
+python3 scripts/validate-loop-schema.py
+```
+
+Expected output:
 
 ```text
-Triage|Backlog -> Duplicate
-Triage|Backlog -> Canceled
+validated schema shape and 4 fixtures
 ```
+
+## What Not To Do
+
+- Do not let every loop scan every Linear issue.
+- Do not let a state loop write after its observed snapshot is stale.
+- Do not let code-backed work enter `Todo` without a fresh Discovery report.
+- Do not let implementation run without a Repo Manager write lock.
+- Do not use Coordinator for routine state movement.
