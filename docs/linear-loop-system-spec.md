@@ -119,9 +119,9 @@ Optional advanced mode:
 
 ## 5. Components
 
-### 5.1 Init Loop
+### 5.1 Initial Loop
 
-Initializes Linear and local system state:
+Initializes Linear and local system state before the scheduled loops start:
 
 - Confirms the default workflow and optionally adds In Review.
 - Enables or documents Triage setup.
@@ -129,8 +129,10 @@ Initializes Linear and local system state:
 - Creates operating docs and issue templates.
 - Creates Linear Project agent settings and local memory directories.
 - Creates a no-code healthcheck issue.
+- Returns user-facing start instructions for schedules, service handoffs, and manual
+  setup gaps.
 
-If API/tooling cannot create statuses or Triage settings, Init returns a manual
+If API/tooling cannot create statuses or Triage settings, Initial returns a manual
 checklist instead of claiming success.
 
 ### 5.2 State Loops
@@ -716,7 +718,7 @@ human review is recorded.
 
 ```text
 prompts/_shared-contract.md
-prompts/init-loop.md
+prompts/initial-loop.md
 prompts/coordinator-loop.md
 prompts/repo-manager.md
 prompts/memory-reconcile-loop.md

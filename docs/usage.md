@@ -104,6 +104,43 @@ Keep repository data out of high-cardinality labels unless the workspace is smal
 Repository origins and default verification commands belong in Linear Project agent
 settings.
 
+Run [prompts/initial-loop.md](../prompts/initial-loop.md) before starting schedules.
+It verifies the workflow, labels, project settings, memory locations, and a no-code
+healthcheck issue. If the Linear API cannot change a setting, it should return a
+manual checklist instead of claiming the setup is done.
+
+## Start The System
+
+After Initial loop finishes:
+
+1. Confirm each managed Linear Project has `Agent Project Settings`.
+2. Start one schedule per visible state loop:
+
+   ```text
+   Triage       -> prompts/triage-loop.md
+   Backlog      -> prompts/backlog-loop.md
+   Todo         -> prompts/todo-loop.md
+   In Progress  -> prompts/in-progress-loop.md
+   In Review    -> prompts/in-review-loop.md
+   Done         -> prompts/done-loop.md
+   Canceled     -> prompts/canceled-loop.md
+   Duplicate    -> prompts/duplicate-loop.md
+   ```
+
+3. Configure service-loop handoffs:
+
+   ```text
+   Discovery        -> prompts/discovery-loop.md
+   Repo Manager     -> prompts/repo-manager.md
+   Memory/Reconcile -> prompts/memory-reconcile-loop.md
+   Coordinator      -> prompts/coordinator-loop.md
+   ```
+
+4. Enforce the write rule in the runner: a loop may write only after re-reading Linear
+   and memory and confirming its observed snapshot still matches.
+5. Route `requestedWorker` to the named service loop.
+6. Route `escalation.target: "coordinator"` to Coordinator.
+
 ## Linear Project Agent Settings
 
 Store project-level agent settings on the Linear Project, either in the project

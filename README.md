@@ -76,7 +76,8 @@ schedule every loop against every issue.
 
 ## Quick Start
 
-1. Run the Initial loop against the Linear workspace.
+1. Run [prompts/initial-loop.md](prompts/initial-loop.md) against the Linear
+   workspace.
 2. Fill in each managed Linear Project's Agent Project Settings.
 3. Load `schemas/loop-result.schema.json` into your runner's output validation step.
 4. Configure one scheduled job per visible state:
