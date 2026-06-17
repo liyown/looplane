@@ -25,8 +25,8 @@ Internal behavior:
    internal discovery handoff.
 4. Repo Manager prepares a read-only checkout.
 5. Discovery inspects repo files, tests, docs, and config.
-6. Discovery report is recorded in local memory and summarized in a Linear comment.
-7. Todo writes an execution brief that cites the Discovery report.
+6. Discovery writes a structured `[Discovery]` block to the Linear issue.
+7. Todo writes a `[Todo Brief]` block that cites `[Discovery]`.
 8. In Progress uses an active run reservation and write-locked worktree.
 9. In Review verifies against issue, Discovery, execution brief, and tests.
 
@@ -68,7 +68,7 @@ Expected behavior:
 - Backlog sets `Target/Repo` with high confidence.
 - System does not ask the user.
 - Discovery reads `product-a-app`.
-- Todo may proceed only after Discovery report exists.
+- Todo may proceed only after a fresh `[Discovery]` block exists.
 
 ## 4. Repository Inference Conflict
 
@@ -84,7 +84,7 @@ Expected behavior:
 - Ask one minimal choice: `web-app` or `api-service`.
 - Store blocker and cooldown to avoid repeated prompts.
 
-## 5. Todo Without Discovery Report
+## 5. Todo Without Discovery
 
 Input:
 
@@ -101,13 +101,13 @@ Expected behavior:
 
 Input:
 
-- Todo issue has Discovery report.
+- Todo issue has a `[Discovery]` block.
 - User edits acceptance criteria.
 
 Expected behavior:
 
 - Fingerprint changes.
-- Todo or Coordinator marks old Discovery stale in memory if the edit affects
+- Todo or Coordinator treats old `[Discovery]` evidence as stale if the edit affects
   technical scope.
 - Issue returns to Backlog or stays Todo with a blocking comment, depending on impact.
 - No implementation starts from stale evidence.

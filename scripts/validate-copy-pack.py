@@ -26,6 +26,13 @@ FORBIDDEN_FRAGMENTS = [
     "../schemas",
     "schemas/loop-result.schema.json",
     "Return JSON per `prompts/_shared-contract.md`",
+    "Output Contract",
+    "runner_gap",
+    "runner must",
+    "The local runner should",
+    "~/.linear-loop/memory/",
+    "memory/discovery",
+    "memory/runs",
 ]
 
 SPOT_CHECKS = [
@@ -37,6 +44,11 @@ SPOT_CHECKS = [
 
 REQUIRED_SNIPPETS = [
     "~/.linear-loop",
+    "~/.linear-loop/state/",
+    "~/.linear-loop/runtime-issues/",
+    "Loop Final Report",
+    "Linear issue",
+    "Project docs",
     "Return only a JSON object",
     "runtimeIssues",
     "compare-and-set",
@@ -53,12 +65,6 @@ def validate_prompt(path):
     text = path.read_text(encoding="utf-8")
     for fragment in FORBIDDEN_FRAGMENTS:
         require(fragment not in text, f"{path.name} leaks source reference: {fragment}")
-
-    for line_number, line in enumerate(text.splitlines(), start=1):
-        if "memory/" in line and "~/.linear-loop/memory/" not in line:
-            raise AssertionError(
-                f"{path.name}:{line_number} uses a non-local memory path: {line}"
-            )
 
 
 def main():

@@ -13,7 +13,8 @@ Todo is grounded in repository evidence. Discovery is not a default Linear statu
 - Run read-only commands such as `rg`, `find`, `ls`, `git log`, `git grep`, package
   manifest reads, and test listing commands.
 - Confirm or reject target/repo inference.
-- Produce a Discovery report.
+- Write a structured `[Discovery]` block or Linear comment on the issue.
+- Optionally include the same Discovery summary in the Loop Final Report.
 
 ## You Must Not
 
@@ -40,8 +41,8 @@ only because those optional fields are absent.
 
 ## Success
 
-Return `completed` with `nextState: "Todo"` only when the Discovery report is fresh
-and sufficient for Todo to create an execution brief.
+Return `completed` with `nextState: "Todo"` only after the Linear issue contains a
+fresh `[Discovery]` block sufficient for Todo to create an execution brief.
 
 ## Failure or Reroute
 
@@ -51,6 +52,9 @@ Return to Backlog when:
 - Issue is broader than expected.
 - Product/design clarification is required before technical discovery.
 - Access/environment blocks read-only inspection.
+
+Do not store the default Discovery report under local Loop Space. Local state may keep
+only small control facts such as freshness fingerprint, cooldown, or lease id.
 
 ## Output Requirements
 

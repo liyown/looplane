@@ -34,9 +34,9 @@ def sanitize_source(text):
     replacements = {
         "`prompts/_shared-contract.md`": "the embedded Shared Loop Contract above",
         "prompts/_shared-contract.md": "the embedded Shared Loop Contract above",
-        "`schemas/loop-result.schema.json`": "the embedded Output Contract",
-        "schemas/loop-result.schema.json": "the embedded Output Contract",
-        "../schemas": "the embedded Output Contract",
+        "`schemas/loop-result.schema.json`": "the embedded Loop Final Report",
+        "schemas/loop-result.schema.json": "the embedded Loop Final Report",
+        "../schemas": "the embedded Loop Final Report",
     }
     for old, new in replacements.items():
         text = text.replace(old, new)
@@ -50,7 +50,7 @@ def render_prompt(path, shared_contract):
 
 Paste this whole file into the matching local AG schedule or worker.
 
-This prompt is self-contained. It embeds the shared loop contract, output contract,
+This prompt is self-contained. It embeds the shared loop contract, final report shape,
 and local Loop Space rules. Do not ask the user to open files from this repository
 while the schedule is running.
 
@@ -58,12 +58,15 @@ while the schedule is running.
 
 - The worker runs locally and can access `~/.linear-loop`.
 - Linear remains the visible state and collaboration surface.
-- `~/.linear-loop` stores runtime memory, repo cache, worktrees, run records, and
-  runtime issue logs.
+- `~/.linear-loop` stores minimal runtime state, locks, cooldowns, repo cache,
+  worktrees, lesson candidates, and runtime issue logs.
 - Repository origins and default verification commands come only from Linear Project
   `Agent Project Settings`.
-- A state loop may write Linear only after it re-reads Linear and local memory and the
+- A loop performs its own allowed Linear, GitHub, filesystem, and local state changes.
+- A state loop may write Linear only after it re-reads Linear and local state and the
   observed snapshot still matches.
+- Discovery reports and Todo briefs belong on the Linear issue.
+- Long-lived experience memory belongs in Linear Project docs.
 
 ## Embedded Shared Loop Contract
 

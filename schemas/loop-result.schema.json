@@ -1,7 +1,7 @@
 {
   "$schema": "https://json-schema.org/draft/2020-12/schema",
   "$id": "https://example.local/schemas/loop-result.schema.json",
-  "title": "Linear Agent Loop Result v1",
+  "title": "Linear Agent Loop Final Report v1",
   "type": "object",
   "additionalProperties": false,
   "required": ["status", "reason", "observed"],
@@ -121,7 +121,7 @@
             "enum": [
               "prompt_gap",
               "schema_gap",
-              "runner_gap",
+              "loop_runtime_gap",
               "linear_setup",
               "repo_access",
               "tooling",

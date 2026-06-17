@@ -13,13 +13,11 @@ Create or verify the local runtime directory before configuring schedules:
 
 ```text
 ~/.linear-loop/config.yaml
-~/.linear-loop/memory/issues/
-~/.linear-loop/memory/discovery/
-~/.linear-loop/memory/repos/
-~/.linear-loop/memory/projects/
-~/.linear-loop/memory/decisions/
-~/.linear-loop/memory/runs/
-~/.linear-loop/memory/runtime-issues/
+~/.linear-loop/state/issues/
+~/.linear-loop/state/locks/
+~/.linear-loop/state/cooldowns/
+~/.linear-loop/state/lesson-candidates.jsonl
+~/.linear-loop/runtime-issues/
 ~/.linear-loop/repos/
 ~/.linear-loop/worktrees/
 ```
@@ -72,7 +70,7 @@ Create or verify label groups:
 
 Optionally create `Repo/*` only for small workspaces that want repository labels in
 Linear. Default repository targets should live in Linear Project agent settings and
-memory, not a separate local project map file.
+Project docs, not a separate local project map file.
 
 Create or verify control labels:
 
@@ -97,6 +95,7 @@ Create or verify:
 - `Agent Project Settings` on each managed Linear Project
 - `Agent Guidance`
 - `Decision Log`
+- `Repo Notes/{repoSlug}` documents when repositories are known
 - issue templates for Bug, Feature, Improvement, Spike, Chore
 
 ## Agent Project Settings
@@ -125,18 +124,20 @@ Do not invent repository origins.
 
 Create or verify:
 
-- `~/.linear-loop/memory/issues/`
-- `~/.linear-loop/memory/discovery/`
-- `~/.linear-loop/memory/repos/`
-- `~/.linear-loop/memory/projects/`
-- `~/.linear-loop/memory/decisions/`
-- `~/.linear-loop/memory/runs/`
-- `~/.linear-loop/memory/runtime-issues/`
+- `~/.linear-loop/state/issues/`
+- `~/.linear-loop/state/locks/`
+- `~/.linear-loop/state/cooldowns/`
+- `~/.linear-loop/state/lesson-candidates.jsonl`
+- `~/.linear-loop/runtime-issues/`
 - `~/.linear-loop/repos/`
 - `~/.linear-loop/worktrees/`
 
 If the local filesystem cannot be used, return `requiresHuman: true` with the exact
 storage problem. The default system assumes local execution.
+
+Do not create default local directories for full Discovery reports, Todo briefs, or
+run-history JSON. Discovery and Todo evidence belongs on the Linear issue. Long-term
+lessons belong in Linear Project docs.
 
 ## Healthcheck
 
@@ -153,12 +154,11 @@ End your response with a short section named `Start the system`. Include:
 
 1. Which visible state loops to schedule and which standalone prompt each one uses.
 2. Which service loops to configure for handoffs.
-3. The compare-and-set write rule the runner must enforce before any state loop
-   writes to Linear.
+3. The compare-and-set write rule each loop must enforce before it writes to Linear.
 4. A reminder that code-backed issues need `Agent Project Settings` repo origins and a
-   fresh Discovery report before Todo.
+   fresh `[Discovery]` block on the Linear issue before Todo.
 5. The runtime issue log path:
-   `~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl`.
+   `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`.
 6. Any manual Linear UI steps that the API/tooling could not complete.
 
 Use these standalone prompt names in the instructions:

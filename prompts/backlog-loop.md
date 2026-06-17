@@ -39,10 +39,11 @@ targeted. You do not produce implementation plans from issue text alone.
 - Target is code-backed.
 - Candidate repo is confirmed or high-confidence inferred.
 - Acceptance criteria are clear enough for read-only inspection.
-- Discovery report is missing or stale.
+- The latest `[Discovery]` block on the Linear issue is missing or stale.
 
 In default mode, do not request a Linear state change to Discovery. Keep the issue in
-Backlog until Todo gate passes and express the internal handoff structurally with:
+Backlog until Todo gate passes, mark the issue or local state for Discovery, and
+summarize the internal handoff with:
 
 - `nextState: "Backlog"`
 - `requestedWorker: "discovery"`

@@ -1,7 +1,8 @@
 # Usage
 
 This document complements [INSTALL.zh-CN.md](../INSTALL.zh-CN.md). The default model
-is local execution: schedules can access `~/.linear-loop`.
+is runnerless: schedules only start loops. Each loop performs its own allowed Linear,
+GitHub, filesystem, and `~/.linear-loop` operations.
 
 ## Roles
 
@@ -24,54 +25,63 @@ is local execution: schedules can access `~/.linear-loop`.
 State loops scan only their owned state. Service loops do not own normal visible
 states.
 
-## Local Loop Space
-
-Runtime state lives here:
+## Memory Placement
 
 ```text
-~/.linear-loop/config.yaml
-~/.linear-loop/memory/issues/
-~/.linear-loop/memory/discovery/
-~/.linear-loop/memory/repos/
-~/.linear-loop/memory/projects/
-~/.linear-loop/memory/decisions/
-~/.linear-loop/memory/runs/
-~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl
-~/.linear-loop/repos/
-~/.linear-loop/worktrees/
+Linear issue
+  [Discovery]
+  [Todo Brief]
+  execution summary
+  verification result
+  blocker / needs-info reason
+
+Linear Project Docs
+  Agent Guidance
+  Repo Notes/{repoSlug}
+  Decision Log
+
+~/.linear-loop
+  state/issues/
+  state/locks/
+  state/cooldowns/
+  state/lesson-candidates.jsonl
+  runtime-issues/YYYY-MM.jsonl
+  repos/
+  worktrees/
 ```
 
-Memory records fingerprints, run reservations, Discovery reports, leases, locks,
-cooldowns, and runtime issues. Repo Manager owns `repos` and `worktrees`.
+`~/.linear-loop` is not the default store for Discovery reports, Todo briefs, or full
+run JSON history.
 
-## Runner Loop
+## Loop Flow
 
-Each scheduled state loop should do this:
+Each scheduled state loop closes its own loop:
 
 ```text
 list issues in the owned Linear state
 for each candidate:
-  load issue memory from ~/.linear-loop
+  read Linear issue, labels, comments, project, and Project docs
+  read minimal local state from ~/.linear-loop/state
   compute fingerprint
   skip unchanged blocked/no-op issues until nextEligibleAt
-  create or reuse run reservation
-  build context
-  run the matching standalone prompt
-  require JSON output
-  re-read Linear and ~/.linear-loop memory
+  claim or verify active run state
+  perform the loop-specific work
+  re-read Linear and ~/.linear-loop/state
   compare observed snapshot with current state
-  apply allowed changes only if the snapshot still matches
+  apply allowed Linear / GitHub / filesystem / local state changes only if the snapshot still matches
   otherwise mark stale/no-op and escalate when needed
-  append runtimeIssues[] to ~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl
+  append runtimeIssues[] to ~/.linear-loop/runtime-issues/YYYY-MM.jsonl when present
+  return Loop Final Report for logs and exception rollups
 ```
 
 The compare step must check at least issue id, Linear state, `updatedAt`, labels hash,
-description hash, memory version, fingerprint, active run id, and lease or lock id
-when present.
+description/comment evidence hash, local state version, fingerprint, active run id,
+and lease or lock id when present.
 
 ## Handoffs
 
-Use `requestedWorker` for ordinary internal handoffs:
+Use `requestedWorker` to summarize that this loop marked or created follow-up work. It
+is not a command for a separate runner:
 
 ```json
 {
@@ -134,11 +144,28 @@ For code-backed work:
 ```text
 Backlog
   -> requestedWorker: discovery
-  -> Discovery report in ~/.linear-loop/memory/discovery/
-  -> Backlog applies Todo when gates pass
+  -> Discovery writes [Discovery] to the Linear issue
+  -> Backlog or Todo proceeds when gates pass
 ```
 
-Do not use issue text alone to enter `Todo`.
+Do not use issue text alone to enter `Todo`. Todo writes `[Todo Brief]` back to the
+Linear issue.
+
+## Experience Memory
+
+Loops may write candidate lessons to `~/.linear-loop/state/lesson-candidates.jsonl`.
+This is only a staging area.
+
+Memory/Reconcile or Coordinator promotes a lesson only when it is repeated,
+non-issue-specific, actionable, and useful to future loops or humans.
+
+Promoted lessons go to Linear Project Docs:
+
+- `Agent Guidance`
+- `Repo Notes/{repoSlug}`
+- `Decision Log`
+
+Discard weak candidates instead of turning local state into a knowledge base.
 
 ## Runtime Issue Log
 
@@ -146,7 +173,7 @@ Loops use `runtimeIssues[]` for problems in the loop system itself:
 
 - prompt instructions were ambiguous or missing;
 - schema could not express a needed result;
-- runner did not enforce a required write rule;
+- a loop did not enforce a required write rule;
 - Linear setup was missing or inconsistent;
 - Repo Manager lacked access to a declared origin;
 - a required tool was unavailable;
@@ -154,9 +181,9 @@ Loops use `runtimeIssues[]` for problems in the loop system itself:
 - Linear entered a state the loop set does not handle;
 - the schedule could not access `~/.linear-loop`.
 
-The runner appends each entry to
-`~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl`. Memory/Reconcile groups repeated
-records and turns them into prompt, schema, runner, or Linear setup changes.
+The loop appends each entry to `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`.
+Memory/Reconcile groups repeated records and turns them into prompt, schema, loop
+runtime, or Linear setup changes.
 
 ## Maintaining The Copy Pack
 
@@ -176,4 +203,4 @@ When adding a loop, update:
 - the source prompt in `prompts/`
 - `scripts/build-standalone-prompts.py`
 - `scripts/validate-copy-pack.py`
-- schema and fixtures when the output contract changes
+- schema and fixtures when the final report shape changes

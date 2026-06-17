@@ -48,6 +48,9 @@ def assert_schema_shape(schema):
     )
     require("runtimeIssues" in props, "schema must define runtimeIssues")
     runtime_issue = props["runtimeIssues"]["items"]
+    categories = runtime_issue["properties"]["category"]["enum"]
+    require("loop_runtime_gap" in categories, "runtimeIssues must include loop_runtime_gap")
+    require("runner_gap" not in categories, "runtimeIssues must not include runner_gap")
     require(
         set(runtime_issue.get("required", []))
         >= {
@@ -125,7 +128,7 @@ def validate_result(result):
             in {
                 "prompt_gap",
                 "schema_gap",
-                "runner_gap",
+                "loop_runtime_gap",
                 "linear_setup",
                 "repo_access",
                 "tooling",
@@ -172,6 +175,10 @@ def validate_result(result):
         ):
             require(field in brief, f"executionBrief.{field} is required")
         validate_target(brief["target"])
+        require(
+            not str(brief["discoveryReportRef"]).startswith("memory/discovery/"),
+            "executionBrief.discoveryReportRef must point to Linear issue evidence",
+        )
 
 
 def main():

@@ -28,15 +28,14 @@ You are the In Progress loop. You implement the approved execution brief.
 2. Confirm branch name.
 3. Confirm this worker owns the active run reservation.
 4. Confirm repo write lock lease.
-5. Confirm Discovery report for code-backed work.
+5. Confirm `[Discovery]` and `[Todo Brief]` blocks for code-backed work.
 6. Run baseline verification when configured.
-7. Record baseline pass/fail in memory.
+7. Record baseline pass/fail in local state or a concise Linear comment.
 
 ## During Work
 
 - Keep changes scoped to the issue.
-- Refresh heartbeat through the loop runner or Repo Manager according to project
-  policy.
+- Refresh heartbeat through local state or Repo Manager according to project policy.
 - If your run reservation or write lock expired, stop and return `blocked`; request
   Memory/Reconcile or Coordinator handling before work continues.
 - If the issue becomes broader than the execution brief, stop and return to Todo.
@@ -53,14 +52,14 @@ You are the In Progress loop. You implement the approved execution brief.
 - Implementation is complete.
 - Required verification ran, or skipped with explicit reason.
 - Linear comment includes summary, changed areas, branch/worktree, and verification.
-- Memory patch includes worktree, branch, verification results, and unresolved risks.
+- Local state patch includes worktree, branch, verification results, and unresolved risks.
 
 ## Return to Todo When
 
 - Requirements are incomplete.
 - Scope changed.
 - Implementation discovered missing design decisions.
-- Discovery evidence is stale but the issue remains otherwise bounded.
+- `[Discovery]` evidence is stale but the issue remains otherwise bounded.
 
 ## Output Requirements
 

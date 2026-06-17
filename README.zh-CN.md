@@ -2,25 +2,27 @@
 
 这是一套把 Linear issue 交给本地 agent loop 处理的工作流。
 
-默认使用方式很直接：本地 agent 或 AG 平台能访问用户目录；运行态统一放在
-`~/.linear-loop`；每个 schedule 粘贴一个 `dist/zh-CN/prompts/*.standalone.md`
-里的自包含 prompt。
+默认模型是 runnerless：AG 平台或本地 agent 平台只负责按 schedule 启动 prompt；
+每个 loop 自己读写 Linear、GitHub、本地文件和 `~/.linear-loop`。没有独立业务
+runner 去消费 JSON。
 
 先看 [INSTALL.zh-CN.md](INSTALL.zh-CN.md)。
 
 ## 系统形态
 
 ```text
-Linear
-  -> 可见状态: Triage / Backlog / Todo / In Progress / In Review / Done
-  -> 终态维护: Canceled / Duplicate
-  -> 内部服务: Discovery / Repo Manager / Memory-Reconcile / Coordinator
+Linear issue
+  -> 需求、Discovery、Todo Brief、执行摘要、验证结果
+
+Linear Project Docs
+  -> Agent Guidance / Repo Notes / Decision Log
 
 ~/.linear-loop
-  -> memory / repos / worktrees / runtime issue logs
-```
+  -> state / locks / cooldowns / runtime issues / repos / worktrees
 
-Linear 是用户看得见的协作界面。`~/.linear-loop` 是 agent 的本地运行空间。
+AG schedule
+  -> 只负责启动对应 loop
+```
 
 Coordinator 不负责日常推进，只处理冲突、过期 run、未知状态、锁问题和
 multi-repo 协调。
@@ -41,28 +43,39 @@ multi-repo 协调。
 
 ```text
 ~/.linear-loop/config.yaml
-~/.linear-loop/memory/issues/
-~/.linear-loop/memory/discovery/
-~/.linear-loop/memory/repos/
-~/.linear-loop/memory/projects/
-~/.linear-loop/memory/decisions/
-~/.linear-loop/memory/runs/
-~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl
+~/.linear-loop/state/issues/
+~/.linear-loop/state/locks/
+~/.linear-loop/state/cooldowns/
+~/.linear-loop/state/lesson-candidates.jsonl
+~/.linear-loop/runtime-issues/YYYY-MM.jsonl
 ~/.linear-loop/repos/
 ~/.linear-loop/worktrees/
 ```
 
+本地目录只保存运行控制状态、锁、冷却、runtime issues 和 repo/worktree 缓存。
+不要把 Discovery report、Todo brief 或完整 run JSON 历史默认存到本地。
+
+## 记忆放哪里
+
+- Linear issue：单个 issue 的事实上下文，例如 `[Discovery]`、`[Todo Brief]`、
+  执行摘要、验证结果、blocked 原因。
+- Linear Project Docs：长期经验，例如 `Agent Guidance`、`Repo Notes/{repoSlug}`、
+  `Decision Log`。
+- `~/.linear-loop`：跨会话运行控制状态，例如 fingerprint、lock、cooldown、
+  lesson candidates 和 runtime issues。
+
 repo origin、default branch、验证命令仍然写在 Linear Project 的
-`Agent Project Settings`。本地目录只做运行缓存和证据记录，不重新引入 repo registry。
+`Agent Project Settings`。本地目录不重新引入 repo registry。
 
 ## 仓库维护者用什么
 
 - [prompts/](prompts/) - 模块化源码 prompt。
-- [schemas/loop-result.schema.json](schemas/loop-result.schema.json) - loop 输出结构。
+- [schemas/loop-result.schema.json](schemas/loop-result.schema.json) - Loop Final
+  Report 结构。
 - [scripts/build-standalone-prompts.py](scripts/build-standalone-prompts.py) - 生成复制包。
 - [scripts/validate-copy-pack.py](scripts/validate-copy-pack.py) - 检查复制包。
 - [scripts/validate-loop-schema.py](scripts/validate-loop-schema.py) - 检查 schema 和 fixtures。
-- [docs/usage.zh-CN.md](docs/usage.zh-CN.md) - schedule、handoff、memory 和维护规则。
+- [docs/usage.zh-CN.md](docs/usage.zh-CN.md) - schedule、handoff、state 和经验记忆规则。
 
 修改 prompt 后运行：
 
@@ -78,21 +91,20 @@ python3 scripts/validate-loop-schema.py
 每个状态 loop 都必须：
 
 1. 只扫描自己负责的 Linear 状态。
-2. claim issue，记录当时看到的 Linear 和 `~/.linear-loop` 快照。
-3. 运行对应 standalone prompt。
-4. 输出 JSON。
-5. 写入前重新读取 Linear 和本地 memory。
-6. 只有 state、`updatedAt`、fingerprint、active run、lease/lock 都匹配时才写。
-7. 不匹配就不要写，交给 Coordinator。
-
-这条规则比 prompt 文案更重要。
+2. claim issue，记录当时看到的 Linear 和 `~/.linear-loop/state` 快照。
+3. 自己执行允许的 Linear、GitHub、本地文件和本地 state 修改。
+4. 写入前重新读取 Linear 和本地 state。
+5. 只有 state、`updatedAt`、fingerprint、active run、lease/lock 都匹配时才写。
+6. 不匹配就不要写，交给 Coordinator。
+7. 最后输出 Loop Final Report，作为日志和异常归并依据，不作为第二套数据库。
 
 ## 不要这样做
 
 - 不要让所有 loop 扫所有 issue。
 - 不要让状态 loop 在快照过期后继续写 Linear。
-- 不要让代码类 issue 在没有 Discovery report 时进入 `Todo`。
+- 不要让代码类 issue 在没有 `[Discovery]` 时进入 `Todo`。
 - 不要让 In Progress 在没有 Repo Manager write lock 时改代码。
 - 不要让 Coordinator 负责日常状态推进。
+- 不要把业务证据藏进 `~/.linear-loop` 当长期事实库。
 - 不要把 prompt、schema、权限、Linear 设置或本地目录问题只写在评论里；用
-  `runtimeIssues[]` 记录到 `~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl`。
+  `runtimeIssues[]` 记录到 `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`。

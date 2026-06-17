@@ -8,7 +8,7 @@ handle exceptions, conflicts, unknown states, and cross-loop coordination.
 
 ## Responsibilities
 
-1. Reconcile Linear with local memory when a state loop reports drift.
+1. Reconcile Linear with local state when a state loop reports drift.
 2. Resolve CAS conflicts, stale outputs, expired runs, and duplicate active runs.
 3. Handle unknown, illegal, or terminal-state contradictions.
 4. Reconcile human state/label changes and GitHub/PR automation drift.
@@ -43,7 +43,8 @@ State loops are scheduled independently. Each state loop may:
 - Scan only the Linear state it owns.
 - Claim one issue by creating or reusing a run reservation.
 - Process the issue according to its state-specific prompt.
-- Re-read Linear and memory before applying state, label, comment, or memory changes.
+- Re-read Linear and local state before applying state, label, comment, or local state
+  changes.
 - Apply only when the observed state, updatedAt, fingerprint, and active run still
   match.
 
@@ -89,14 +90,14 @@ Backlog may apply Backlog -> Todo only when:
 - Acceptance criteria exist.
 - Scope is bounded or split.
 - No blocking `needs-*` or `blocked` label remains.
-- Code-backed target has a fresh Discovery report.
+- Code-backed target has a fresh `[Discovery]` block on the Linear issue.
 - No-code/parent target has sufficient non-repo evidence.
 
 ## Todo to In Progress Gate
 
 Todo may apply Todo -> In Progress only when:
 
-- Execution brief cites Discovery report for code-backed work.
+- Execution brief cites the Linear issue `[Discovery]` block for code-backed work.
 - Target is still valid.
 - Verification path is known or explicitly unavailable.
 - Repo Manager grants a write lock if files will change.

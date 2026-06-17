@@ -24,7 +24,7 @@ You are the In Review loop. You verify that completed work satisfies the issue.
 
 1. Acceptance criteria are all addressed.
 2. Diff is scoped to the issue.
-3. Code-backed work traces back to a Discovery report.
+3. Code-backed work traces back to a `[Discovery]` block and `[Todo Brief]`.
 4. Verification results are present and credible.
 5. Baseline failures are distinguished from new failures.
 6. Security-sensitive issues have human approval.

@@ -6,8 +6,10 @@ This spec defines a generic Linear-driven local agent team. It can initialize an
 empty Linear workspace, process natural-language issues without requiring users to
 name repositories, read repositories before planning implementation, and tolerate
 manual Linear changes, GitHub/PR automation, unfinished prior runs, and multiple
-local executors. Runtime state lives under `~/.linear-loop`; this repository is the
-source for maintained prompts, schema, tests, and generated copy packs.
+local executors. Runtime control state lives under `~/.linear-loop`; issue evidence
+lives on Linear issues; long-lived experience memory lives in Linear Project docs.
+This repository is the source for maintained prompts, schema, tests, and generated
+copy packs.
 
 The v1 default optimizes for first use: few visible statuses, few labels, independent
 state loops, a small output schema, and one Coordinator loop for exceptions. Normal
@@ -44,14 +46,14 @@ References:
    It stores issue state, labels, project, priority, comments, decisions, acceptance
    criteria, review findings, and delivery evidence.
 
-2. **Local memory is runtime state.**
-   It stores fingerprints, resolved targets, discovery reports, active runs, leases,
-   locks, baseline results, cooldowns, and stale run records. It should be rebuildable
-   from Linear Project settings and Git with some loss of convenience.
+2. **Do not create a second database.**
+   Linear issues store issue-bound facts. Linear Project docs store long-lived
+   experience memory. Local Loop Space stores only runtime control state such as
+   fingerprints, active runs, leases, locks, cooldowns, lesson candidates, and cache.
 
 3. **Todo means evidence-backed.**
    A code-backed issue cannot enter Todo only from issue text. It needs a fresh
-   read-only Discovery report.
+   read-only `[Discovery]` block on the Linear issue.
 
 4. **Users do not have to declare repositories.**
    The system infers an execution target from Linear Project settings, area labels,
@@ -63,9 +65,9 @@ References:
    transitions for issues currently in that state.
 
 6. **Every apply is compare-and-set.**
-   A state loop must echo the snapshot it claimed and re-read Linear and memory before
-   applying. If state, updatedAt, fingerprint, run reservation, or relevant lease/lock
-   data changed, it must not apply and should escalate to Coordinator.
+   A state loop must echo the snapshot it claimed and re-read Linear and local state
+   before applying. If state, updatedAt, fingerprint, run reservation, or relevant
+   lease/lock data changed, it must not apply and should escalate to Coordinator.
 
 7. **Coordinator handles exceptions, not routine work.**
    Coordinator owns stale-run handling, duplicate executor reconciliation, illegal or
@@ -115,8 +117,8 @@ Optional advanced mode:
 
 - Teams that want agent-internal discovery visible on the Linear board may add
   `Discovery` between Backlog and Todo.
-- In default mode, Discovery remains an internal worker/gate and is reported through
-  comments plus memory.
+- In default mode, Discovery remains an internal worker/gate and is reported through a
+  structured Linear issue comment or block.
 
 ## 5. Components
 
@@ -128,7 +130,8 @@ Initializes Linear and local system state before the scheduled loops start:
 - Enables or documents Triage setup.
 - Creates the default label set.
 - Creates operating docs and issue templates.
-- Creates Linear Project agent settings and local memory directories.
+- Creates Linear Project agent settings, Project docs, and minimal local state
+  directories.
 - Creates a no-code healthcheck issue.
 - Returns user-facing start instructions for schedules, service handoffs, and manual
   setup gaps.
@@ -142,9 +145,10 @@ State loops own normal progression for their source states:
 
 - Scan only the Linear state they own.
 - Create or reuse active run reservations for claimed issues.
-- Build their own context from Linear, Linear Project settings, and memory.
+- Build their own context from Linear, Linear Project settings, Project docs, and
+  local state.
 - Enforce their state-specific gates.
-- Re-read Linear and memory before applying changes.
+- Re-read Linear and local state before applying changes.
 - Apply only allowed transitions when the observed snapshot still matches.
 - Escalate CAS conflicts, illegal states, duplicate runs, and cross-loop issues to
   Coordinator.
@@ -172,8 +176,8 @@ Discovery is an internal worker, not a default Linear state:
 
 - Gets a read lease through Repo Manager.
 - Performs read-only repo/document inspection.
-- Records the minimum evidence needed for Todo.
-- Produces the Discovery report required before code-backed Todo.
+- Records the minimum evidence needed for Todo on the Linear issue.
+- Produces the `[Discovery]` block required before code-backed Todo.
 
 ### 5.5 Repo Manager
 
@@ -219,7 +223,7 @@ Target rules:
 - `unknown`: stays in Backlog until clarified or inferred.
 - `no-code`: may enter Todo without repo discovery.
 - `parent`: coordinates child issues and should not enter In Progress directly.
-- `code`: requires a repo slug and fresh Discovery report before Todo.
+- `code`: requires a repo slug and fresh `[Discovery]` block before Todo.
 
 Advanced target kinds such as research, multi-repo, or external-service can be mapped
 onto v1 defaults:
@@ -307,8 +311,9 @@ baseline-failing
 
 Advanced control labels such as `needs-env`, `needs-decision`, `needs-discovery`,
 `needs-reconcile`, `stale-worker`, `discovery-stale`, `flaky-test`, `release-note`,
-`ready`, and `no-code` are optional. In v1 default, those details live in memory and
-comments unless the team explicitly wants more visible board metadata.
+`ready`, and `no-code` are optional. In v1 default, those details live in local state,
+Project docs, and Linear comments unless the team explicitly wants more visible board
+metadata.
 
 Label ownership:
 
@@ -326,7 +331,7 @@ smallest blocking label that already exists in the default set.
 
 Each managed Linear Project should contain an `Agent Project Settings` section or
 linked document. This is the default place for target and repository configuration.
-Use a fenced YAML block so a runner can parse it consistently:
+Use a fenced YAML block so each loop can parse it consistently:
 
 ```yaml
 agent:
@@ -353,11 +358,12 @@ infer clone URLs.
 
 Optional project settings can define component maps, branch patterns, package
 managers, and verification command sets. Local worktree roots and lease durations are
-runner configuration, not Linear project data.
+local loop configuration, not Linear project data.
 
 ## 9. Discovery Report
 
-Code-backed Todo requires a fresh Discovery report. The minimum v1 report is:
+Code-backed Todo requires a fresh `[Discovery]` block on the Linear issue. The minimum
+v1 report is:
 
 ```json
 {
@@ -395,13 +401,11 @@ Default local Loop Space structure:
 
 ```text
 ~/.linear-loop/config.yaml
-~/.linear-loop/memory/issues/{issueId}.json
-~/.linear-loop/memory/discovery/{issueId}.json
-~/.linear-loop/memory/repos/{repoSlug}.json
-~/.linear-loop/memory/projects/{projectSlug}.json
-~/.linear-loop/memory/decisions/{YYYY-MM-DD}-{slug}.md
-~/.linear-loop/memory/runs/{runId}.json
-~/.linear-loop/memory/runtime-issues/{YYYY-MM}.jsonl
+~/.linear-loop/state/issues/{issueId}.json
+~/.linear-loop/state/locks/{repoSlug}.json
+~/.linear-loop/state/cooldowns/{issueId}.json
+~/.linear-loop/state/lesson-candidates.jsonl
+~/.linear-loop/runtime-issues/{YYYY-MM}.jsonl
 ~/.linear-loop/repos/{repoSlug}/
 ~/.linear-loop/worktrees/{issueId}-{repoSlug}/
 ```
@@ -421,17 +425,16 @@ Issue memory example:
     "status": "inferred",
     "confidence": "low"
   },
-  "discoveryReport": null,
   "activeRuns": {},
   "nextEligibleAt": "2026-06-18T10:00:00+08:00"
 }
 ```
 
 Runtime issues are append-only records for system problems found while loops run. They
-are not product issue requirements. The runner appends emitted `runtimeIssues[]`
-objects to `~/.linear-loop/memory/runtime-issues/YYYY-MM.jsonl` with the observed
-issue id, run id, loop, and timestamp. Coordinator or Memory/Reconcile uses repeated
-records as iteration input for prompts, schema, runner behavior, Linear setup, or repo
+are not product issue requirements. Each loop appends emitted `runtimeIssues[]`
+objects to `~/.linear-loop/runtime-issues/YYYY-MM.jsonl` with the observed issue id,
+loop, and timestamp. Coordinator or Memory/Reconcile uses repeated records as
+iteration input for prompts, schema, loop runtime behavior, Linear setup, or repo
 access.
 
 Fingerprint inputs:
@@ -520,7 +523,7 @@ If two executors start anyway:
 
 Read-only loops may use multiple executors only when the owning loop or Coordinator
 creates explicit shards, for example `discovery:frontend` and `discovery:tests`.
-Coordinator or the owning loop merges shard evidence into one Discovery report. In
+Coordinator or the owning loop merges shard evidence into one `[Discovery]` block. In
 Progress remains single-writer per repo/worktree by default.
 
 ### 10.4 Leases and Locks
@@ -643,16 +646,16 @@ GitHub/PR automation changed state:
 - Acceptance criteria exist.
 - Scope is bounded or split.
 - No blocking `needs-*` or `blocked` label remains.
-- If target is `code`, a fresh Discovery report exists.
+- If target is `code`, a fresh `[Discovery]` block exists.
 - If target is `no-code` or `parent`, required non-repo evidence exists.
 
-When the only missing gate is a fresh Discovery report, Backlog remains the visible
+When the only missing gate is a fresh `[Discovery]` block, Backlog remains the visible
 state in default mode. The Backlog worker should propose
 `requestedWorker: "discovery"` rather than requesting a visible Discovery state.
 
 ### Todo -> In Progress
 
-- Execution brief cites Discovery report for code-backed work.
+- Execution brief cites the Linear issue `[Discovery]` block for code-backed work.
 - Verification path is known or explicitly unavailable.
 - Target remains valid.
 - Dependencies and blockers are resolved.
@@ -759,9 +762,9 @@ The v1 system is ready when:
 - Default visible states stay simple.
 - Default labels stay small.
 - Execution target resolution works without per-issue repo declarations.
-- Code-backed Todo requires a fresh Discovery report.
+- Code-backed Todo requires a fresh `[Discovery]` block on the Linear issue.
 - Worker outputs echo observed run context.
-- State loops re-read Linear and memory before applying allowed transitions.
+- State loops re-read Linear and local state before applying allowed transitions.
 - Coordinator handles conflicts, stale runs, and exceptional routing.
 - Unfinished prior runs and duplicate executors have deterministic handling.
 - Manual edits and GitHub automation have deterministic reconciliation behavior.
