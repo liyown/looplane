@@ -50,24 +50,6 @@ Loop Final Report 结构。
 
 完整步骤见 [INSTALL.zh-CN.md](INSTALL.zh-CN.md)。
 
-## Linear 里会看到什么
-
-![Linear issue evidence map](docs/assets/linear-issue-evidence.svg)
-
-Issue 是业务事实的主位置。Discovery loop 把 `[Discovery]` 写回 issue；Todo loop
-把 `[Todo Brief]` 写回 issue；后续执行摘要、验证结果和 blocked 原因也留在同一个
-issue 里。
-
-![Linear project memory map](docs/assets/linear-project-memory.svg)
-
-Project Docs 是长期记忆的主位置：
-
-- `Agent Guidance`：通用操作经验和团队偏好。
-- `Repo Notes/{repoSlug}`：repo 级目录结构、测试命令、常见坑。
-- `Decision Log`：长期决策。
-
-上面的图是脱敏说明图。真实 Linear 截图可放到 `docs/assets/` 下替换同名文件，README
-不需要改结构。
 
 ## loop 怎么协作
 
