@@ -45,6 +45,11 @@ FORBIDDEN_FRAGMENTS = [
     "initial-loop",
     "Initial loop",
     "Initial Loop",
+    "Paste this whole file",
+    "Use this as the prompt body",
+    "## Run Mode",
+    "## Role Prompt",
+    "Standalone Prompt",
 ]
 
 SPOT_CHECKS = [

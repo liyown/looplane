@@ -38,9 +38,9 @@ agent:
     copyPack: dist/zh-CN/prompts
 ```
 
-If the schedule cannot access the user's local home directory, stop and return a
-Markdown run note explaining the storage problem. Do not continue with volatile
-storage.
+If the local agent runtime or future schedules cannot access the user's local home
+directory, stop and return a Markdown run note explaining the storage problem. Do not
+continue with volatile storage.
 
 ## Default Setup
 

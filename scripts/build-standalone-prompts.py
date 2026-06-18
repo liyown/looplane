@@ -26,10 +26,6 @@ PROMPT_FILES = [
 ]
 
 
-def title_for(path):
-    return path.stem.replace("-", " ").title()
-
-
 def sanitize_source(text):
     replacements = {
         "`prompts/_shared-contract.md`": "the embedded Shared Loop Contract above",
@@ -42,23 +38,21 @@ def sanitize_source(text):
 
 def render_prompt(path, shared_contract):
     source = sanitize_source(path.read_text(encoding="utf-8"))
-    title = title_for(path)
     if path.name == "initial-setup.md":
-        usage = """Run this whole file manually once in your local agent. Do not put it on a
-recurring schedule."""
         runtime_note = "- This initial setup prompt runs once and does not own a recurring Linear state.\n"
     else:
-        usage = "Paste this whole file into the matching local AG schedule or worker."
         runtime_note = ""
-    return f"""# {title} Standalone Prompt
+    return f"""{source}
 
-{usage}
+## Embedded Shared Loop Contract
+
+{shared_contract.rstrip()}
+
+## Runtime Assumptions
 
 This prompt is self-contained. It embeds the shared loop contract, Markdown run note
 convention, runtime issue log format, and local Loop Space rules. Do not ask the user
 to open files from this repository while the prompt is running.
-
-## Runtime Assumptions
 
 {runtime_note}- The prompt or worker runs locally and can access `~/.linear-loop`.
 - Linear remains the visible state and collaboration surface.
@@ -73,14 +67,6 @@ to open files from this repository while the prompt is running.
 - Long-lived experience memory belongs in Linear Project docs.
 - Final run summaries, when useful, are concise Markdown `Run Note` sections.
 - Do not return JSON as a run contract.
-
-## Embedded Shared Loop Contract
-
-{shared_contract.rstrip()}
-
-## Role Prompt
-
-{source}
 """
 
 
