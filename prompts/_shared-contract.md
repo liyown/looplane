@@ -56,8 +56,9 @@ Use these paths:
 - `~/.linear-loop/worktrees/`
 
 Do not use paths relative to this prompt repository at runtime. If the prompt cannot
-access `~/.linear-loop`, return `blocked` or `failed` and include a `runtimeIssues[]`
-entry that names the missing local storage capability.
+access `~/.linear-loop`, stop, leave a Markdown run note that names the missing local
+storage capability, and set `requiresHuman` only in the human-visible Linear note or
+manual setup checklist.
 
 Do not store ordinary Discovery reports, Todo briefs, or full run histories in local
 Loop Space by default. Write issue-bound evidence to the Linear issue. Keep local
@@ -83,15 +84,15 @@ The context pack for scheduled loops should include:
 - allowed actions and transitions
 - loop schedule or coordinator note, if applicable
 
-If required input is missing, return `blocked` or `failed` with a precise reason.
-Initial setup may start with no issue context, but it must still report missing Linear,
-GitHub, shell, or local filesystem capabilities precisely.
+If required input is missing, stop with a precise blocked reason in Linear or in the
+Markdown run note. Initial setup may start with no issue context, but it must still
+report missing Linear, GitHub, shell, or local filesystem capabilities precisely.
 
 ## Global Rules
 
 1. Process only issues in your owned state, role, or explicit handoff queue.
 2. Claim or verify the issue before doing stateful work.
-3. Echo the observed claim snapshot in the final report.
+3. Keep the observed claim snapshot in local state for compare-and-set checks.
 4. Read Linear issue evidence, Project docs, and minimal local state before acting.
 5. Do not repeat a known blocker when the input fingerprint has not changed.
 6. Do not invent repository URLs.
@@ -102,10 +103,11 @@ GitHub, shell, or local filesystem capabilities precisely.
 10. Do not mark work Done unless you are In Review or Done bookkeeping.
 11. Keep Linear comments concise and human-readable.
 12. Persist issue-bound evidence to Linear before relying on it in later loops.
-13. Return JSON matching the embedded Loop Final Report below.
+13. Do not return JSON as a run contract. If a run summary is useful, write a short
+    Markdown `Run Note`.
 14. Before applying any state, label, comment, or local state change, re-read Linear
     and `~/.linear-loop/state` and verify that state, updatedAt, fingerprint, active
-    run, and relevant lease/lock data still match `observed`.
+    run, and relevant lease/lock data still match the observed snapshot.
 
 ## Concurrency Rules
 
@@ -115,102 +117,69 @@ GitHub, shell, or local filesystem capabilities precisely.
 - Do not try to merge with another executor. Report what you observed and what you
   propose.
 - If the context says another fresh active run owns the same issue/loop/fingerprint,
-  return `no_op` unless you were explicitly assigned as a shard.
-- If your run lease or write lock is expired, return `blocked` and request
-  Memory/Reconcile or Coordinator intervention.
+  stop as no-op unless you were explicitly assigned as a shard.
+- If your run lease or write lock is expired, stop as blocked and request
+  Memory/Reconcile or Coordinator intervention through Linear or local state.
 - If you discover issue evidence is stale, stop and request the owning loop,
   Discovery, Memory/Reconcile, or Coordinator as appropriate.
-- Use `requestedWorker: "coordinator"` and an `escalation` object when CAS fails,
-  state is unknown, duplicate active runs exist, human/automation drift conflicts with
-  gates, or a cross-repo coordination decision is required.
+- When CAS fails, state is unknown, duplicate active runs exist, human/automation
+  drift conflicts with gates, or a cross-repo coordination decision is required,
+  leave a Coordinator-facing marker in Linear or local state with the conflict kind
+  and reason. Do not encode the handoff only in a final response.
 
-## Loop Final Report
+## Handoffs and Run Notes
 
-Return only a JSON object at the end. This is a final report for logs, debugging,
-exception handling, and Memory/Reconcile rollups. It is not a second database or a
-substitute for writing durable facts to Linear.
+Loops must persist real outcomes directly where the next loop can read them:
 
-Required fields are `status`, `reason`, and `observed`. All other fields are optional
-and should be omitted when empty.
+- State, labels, concise comments, `[Discovery]`, `[Todo Brief]`, execution summaries,
+  verification results, and blocker explanations go on the Linear issue.
+- Long-lived guidance goes in Linear Project docs.
+- Locks, cooldowns, run reservations, fingerprints, and handoff markers go in
+  `~/.linear-loop/state`.
+- System problems go in `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`.
 
-```json
-{
-  "status": "completed | blocked | no_op | failed",
-  "reason": "",
-  "observed": {
-    "issueId": "ABC-123",
-    "runId": "run-20260617-abc123",
-    "loop": "todo",
-    "shard": "optional-read-only-shard",
-    "workerId": "local-agent-1",
-    "fingerprint": "sha256...",
-    "updatedAt": "2026-06-17T10:00:00Z",
-    "state": "Todo",
-    "labelsHash": "sha256:labels",
-    "descriptionHash": "sha256:description",
-    "memoryVersion": 4,
-    "leaseId": "lease-123"
-  },
-  "nextState": "Triage | Backlog | Todo | In Progress | In Review | Done | Canceled | Duplicate | Discovery | null",
-  "requestedWorker": "discovery | memory-reconcile | repo-manager | coordinator | null",
-  "escalation": {
-    "target": "coordinator | discovery | memory-reconcile | repo-manager | null",
-    "kind": "cas_conflict | stale_run | expired_lease | unknown_state | human_or_automation_drift | multi_repo | needs_internal_worker | repo_or_lock_conflict | none",
-    "blocking": true,
-    "reason": ""
-  },
-  "labelsToAdd": [],
-  "labelsToRemove": [],
-  "linearComment": "",
-  "memoryPatch": {},
-  "runtimeIssues": [
-    {
-      "category": "prompt_gap | schema_gap | loop_runtime_gap | linear_setup | repo_access | tooling | flaky_verification | unexpected_state | other",
-      "severity": "low | medium | high | critical",
-      "summary": "",
-      "detail": "",
-      "evidence": [],
-      "suggestedChange": ""
-    }
-  ],
-  "repoActions": [],
-  "targetPatch": null,
-  "discoveryReport": null,
-  "executionBrief": null,
-  "requiresHuman": false
-}
+If a final run summary is useful, write it as Markdown for humans. Do not output JSON
+as a control surface.
+
+```md
+## Run Note
+- Status: completed | blocked | no-op | failed
+- Issue: ABC-123
+- Changed: Linear state, labels, comments, local state, GitHub, or none
+- Evidence: where durable evidence was written
+- Next: next loop, human step, or none
 ```
 
-Use `nextState: "Discovery"` only when the workspace explicitly enables visible
-Discovery status. In default mode, Discovery workers normally request `Todo`,
-`Backlog`, or `null`.
-
-Use `requestedWorker` to summarize that this loop created or marked work for another
-loop or service worker without changing the visible Linear state. Use `escalation`
-when the handoff is exceptional or blocking.
-
-For example, a Backlog worker that has a confirmed code target but no `[Discovery]`
-block should keep `nextState: "Backlog"`, mark the issue or local state for
-Discovery, and set `requestedWorker: "discovery"` in the final report.
-
-For example, a Backlog worker whose claim snapshot no longer matches current Linear
-should set `nextState: null`, `requestedWorker: "coordinator"`, and
-`escalation.kind: "cas_conflict"` without applying a transition.
-
-Detailed Discovery reports and Todo briefs should be written to the Linear issue as
-structured `[Discovery]` and `[Todo Brief]` comments or blocks. If the final report
-also includes `discoveryReport` or `executionBrief`, their `target` objects must
-include `kind`, `status`, `repo`, `confidence`, and `evidence`.
+Keep the run note short. It is not durable state and must not be required by later
+loops.
 
 ## Runtime Issue Logging
 
-Use `runtimeIssues` when the loop observes a problem with the loop system itself, not
-the product issue. Examples include prompt ambiguity, missing schema fields, loop
-runtime gaps, Linear setup gaps, repo access failures, missing tools, flaky
+Use runtime issue records when the loop observes a problem with the loop system
+itself, not the product issue. Examples include prompt ambiguity, loop contract gaps,
+loop runtime gaps, Linear setup gaps, repo access failures, missing tools, flaky
 verification, and unexpected states.
 
-Do not use `runtimeIssues` for ordinary product requirements or implementation tasks.
-The loop should append each runtime issue to
-`~/.linear-loop/runtime-issues/YYYY-MM.jsonl` with the observed issue id, loop,
-timestamp, and the emitted object. These records are iteration evidence for changing
-prompts, schema, loop runtime behavior, or Linear setup.
+Do not use runtime issue records for ordinary product requirements or implementation
+tasks. Append one JSON object per line to
+`~/.linear-loop/runtime-issues/YYYY-MM.jsonl`.
+
+Required fields:
+
+```json
+{
+  "timestamp": "2026-06-18T10:00:00+08:00",
+  "source": "triage-loop | backlog-loop | todo-loop | in-progress-loop | in-review-loop | done-loop | canceled-loop | duplicate-loop | discovery-loop | repo-manager | memory-reconcile-loop | coordinator-loop | initial-setup",
+  "category": "prompt_gap | loop_contract_gap | loop_runtime_gap | linear_setup | repo_access | tooling | flaky_verification | unexpected_state | other",
+  "severity": "low | medium | high | critical",
+  "summary": "",
+  "detail": "",
+  "suggestedChange": "",
+  "issueId": "optional",
+  "runId": "optional",
+  "evidence": []
+}
+```
+
+These records are iteration evidence for changing prompts, loop runtime behavior,
+Linear setup, repo access, or tooling.

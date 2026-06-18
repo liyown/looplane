@@ -43,11 +43,12 @@ targeted. You do not produce implementation plans from issue text alone.
 
 In default mode, do not request a Linear state change to Discovery. Keep the issue in
 Backlog until Todo gate passes, mark the issue or local state for Discovery, and
-summarize the internal handoff with:
+leave a concise human-readable note only when useful:
 
-- `nextState: "Backlog"`
-- `requestedWorker: "discovery"`
-- omit `escalation` unless the handoff is blocked by a conflict or stale evidence
+- The issue remains in `Backlog`.
+- Internal Discovery is needed before Todo.
+- The Discovery request is recorded where the Discovery worker can read it.
+- Coordinator is needed only when the handoff is blocked by conflict or stale evidence.
 
 ## Stay in Backlog When
 
@@ -64,4 +65,5 @@ Use the smallest default blocker label that fits:
 
 ## Output Requirements
 
-Return JSON per the shared loop contract.
+Apply allowed Linear and local state changes directly. If useful, finish with a short
+Markdown `Run Note`; do not return JSON.

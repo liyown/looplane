@@ -70,8 +70,8 @@ for each candidate:
   compare observed snapshot with current state
   apply allowed Linear / GitHub / filesystem / local state changes only if the snapshot still matches
   otherwise mark stale/no-op and escalate when needed
-  append runtimeIssues[] to ~/.linear-loop/runtime-issues/YYYY-MM.jsonl when present
-  return Loop Final Report for logs and exception rollups
+  append runtime issue records to ~/.linear-loop/runtime-issues/YYYY-MM.jsonl when needed
+  optionally write a short Markdown Run Note for humans
 ```
 
 The compare step must check at least issue id, Linear state, `updatedAt`, labels hash,
@@ -80,29 +80,24 @@ and lease or lock id when present.
 
 ## Handoffs
 
-Use `requestedWorker` to summarize that this loop marked or created follow-up work:
+Handoffs are persisted where the next loop can actually read them. Do not encode
+handoffs only in the agent's final message.
 
-```json
-{
-  "nextState": "Backlog",
-  "requestedWorker": "discovery"
-}
-```
+Use one of these durable markers:
 
-Use `escalation` for blocking or exceptional handoffs:
+- A concise Linear issue comment or block, such as `[Discovery Requested]`.
+- A label such as `needs-access`, `needs-repo`, or `blocked`.
+- A local state entry under `~/.linear-loop/state/issues/`.
+- A lock, lease, or cooldown entry under `~/.linear-loop/state/locks/` or
+  `~/.linear-loop/state/cooldowns/`.
 
-```json
-{
-  "status": "blocked",
-  "nextState": null,
-  "requestedWorker": "coordinator",
-  "escalation": {
-    "target": "coordinator",
-    "kind": "cas_conflict",
-    "blocking": true,
-    "reason": "Current Linear updatedAt no longer matches the observed snapshot."
-  }
-}
+Example Backlog handoff:
+
+```md
+[Discovery Requested]
+Reason: Code-backed issue has a confirmed repo target but no fresh Discovery block.
+Target: product-a-app
+Freshness: issue fingerprint sha256:...
 ```
 
 Coordinator handles CAS conflicts, stale runs, expired leases, unknown states,
@@ -142,7 +137,7 @@ For code-backed work:
 
 ```text
 Backlog
-  -> requestedWorker: discovery
+  -> records a Discovery handoff marker
   -> Discovery writes [Discovery] to the Linear issue
   -> Backlog or Todo proceeds when gates pass
 ```
@@ -166,12 +161,28 @@ Promoted lessons go to Linear Project Docs:
 
 Discard weak candidates instead of turning local state into a knowledge base.
 
+## Run Note
+
+If the agent host expects a visible final message, use Markdown:
+
+```md
+## Run Note
+- Status: completed
+- Issue: ABC-123
+- Changed: added [Todo Brief], moved Todo -> In Progress
+- Evidence: Linear issue comment
+- Next: In Progress loop
+```
+
+The run note is for humans. Later loops must read Linear, GitHub, Project Docs, and
+`~/.linear-loop`, not the note.
+
 ## Runtime Issue Log
 
-Loops use `runtimeIssues[]` for problems in the loop system itself:
+Loops append runtime issue records for problems in the loop system itself:
 
 - prompt instructions were ambiguous or missing;
-- schema could not express a needed result;
+- loop contract could not express a needed action;
 - a loop did not enforce a required write rule;
 - Linear setup was missing or inconsistent;
 - Repo Manager lacked access to a declared origin;
@@ -180,9 +191,10 @@ Loops use `runtimeIssues[]` for problems in the loop system itself:
 - Linear entered a state the loop set does not handle;
 - the schedule could not access `~/.linear-loop`.
 
-The loop appends each entry to `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`.
-Memory/Reconcile groups repeated records and turns them into prompt, schema, loop
-runtime, or Linear setup changes.
+The loop appends one JSON object per line to
+`~/.linear-loop/runtime-issues/YYYY-MM.jsonl`. Memory/Reconcile groups repeated
+records and turns them into prompt, loop contract, loop runtime, or Linear setup
+changes.
 
 ## Maintaining The Copy Pack
 
@@ -195,7 +207,6 @@ After source changes, run:
 python3 scripts/build-standalone-prompts.py
 python3 scripts/build-standalone-prompts.py --check
 python3 scripts/validate-copy-pack.py
-python3 scripts/validate-loop-schema.py
 ```
 
 When adding a loop, update:
@@ -203,4 +214,3 @@ When adding a loop, update:
 - the source prompt in `prompts/`
 - `scripts/build-standalone-prompts.py`
 - `scripts/validate-copy-pack.py`
-- schema and fixtures when the final report shape changes

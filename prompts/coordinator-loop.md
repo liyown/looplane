@@ -33,8 +33,9 @@ Canceled -> Canceled
 Duplicate -> Duplicate
 ```
 
-`Discovery` is not a default Linear state. It is an internal worker/gate. Only use
-`nextState: Discovery` if project memory says advanced visible Discovery mode is on.
+`Discovery` is not a default Linear state. It is an internal worker/gate. Only move an
+issue to a visible `Discovery` state if project memory says advanced visible Discovery
+mode is on.
 
 ## State Loop Autonomy
 
@@ -49,8 +50,8 @@ State loops are scheduled independently. Each state loop may:
   match.
 
 If any compare-and-set check fails, the state loop must not apply the transition. It
-returns `blocked` or `no_op`, sets `requestedWorker: "coordinator"`, and includes an
-`escalation` object with the conflict reason.
+marks the run blocked or no-op in local state and leaves a Coordinator-facing marker
+with the conflict reason.
 
 ## Run Reservation Rules
 
@@ -117,8 +118,8 @@ or exceptional reroutes. Before applying:
   a terminal state now wins, or a required lock expired.
 - Safe-merge only non-conflicting comments or memory facts from old read-only runs.
 - Do not apply state transitions from old or duplicate workers.
-- Treat `requestedWorker` and `escalation` as coordination signals. Re-check gates,
-  leases, and active runs before rerouting or merging.
+- Treat Linear comments, labels, and local state handoff markers as coordination
+  signals. Re-check gates, leases, and active runs before rerouting or merging.
 
 ## Reconciliation Rules
 
@@ -134,5 +135,5 @@ or exceptional reroutes. Before applying:
 
 ## Output
 
-Return JSON per the shared contract when the Coordinator itself is scheduled as a
-loop. Apply only reconciliation actions that pass fresh Linear and memory checks.
+Apply only reconciliation actions that pass fresh Linear and memory checks. If useful,
+finish with a short Markdown `Run Note`; do not return JSON.

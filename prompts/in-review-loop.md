@@ -54,9 +54,10 @@ You are the In Review loop. You verify that completed work satisfies the issue.
 - Discovery evidence is stale or contradicted by the diff.
 
 In default mode, return to Todo or Backlog and request internal Discovery with
-`requestedWorker: "discovery"`; do not request a visible Discovery state unless
-advanced mode is enabled.
+a Linear comment or local state handoff marker; do not request a visible Discovery
+state unless advanced mode is enabled.
 
 ## Output Requirements
 
-Return JSON per the shared loop contract.
+Apply allowed Linear and local state changes directly. If useful, finish with a short
+Markdown `Run Note`; do not return JSON.

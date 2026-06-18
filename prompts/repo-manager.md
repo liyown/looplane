@@ -80,4 +80,5 @@ timestamp, pass/fail, and a concise output summary. If baseline fails, report
 
 ## Output Requirements
 
-Return JSON per the shared loop contract.
+Write lease, lock, worktree, baseline, and access results to local state or Linear
+directly. If useful, finish with a short Markdown `Run Note`; do not return JSON.

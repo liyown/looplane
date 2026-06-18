@@ -34,9 +34,6 @@ def sanitize_source(text):
     replacements = {
         "`prompts/_shared-contract.md`": "the embedded Shared Loop Contract above",
         "prompts/_shared-contract.md": "the embedded Shared Loop Contract above",
-        "`schemas/loop-result.schema.json`": "the embedded Loop Final Report",
-        "schemas/loop-result.schema.json": "the embedded Loop Final Report",
-        "../schemas": "the embedded Loop Final Report",
     }
     for old, new in replacements.items():
         text = text.replace(old, new)
@@ -57,9 +54,9 @@ recurring schedule."""
 
 {usage}
 
-This prompt is self-contained. It embeds the shared loop contract, final report shape,
-and local Loop Space rules. Do not ask the user to open files from this repository
-while the prompt is running.
+This prompt is self-contained. It embeds the shared loop contract, Markdown run note
+convention, runtime issue log format, and local Loop Space rules. Do not ask the user
+to open files from this repository while the prompt is running.
 
 ## Runtime Assumptions
 
@@ -74,6 +71,8 @@ while the prompt is running.
   observed snapshot still matches.
 - Discovery reports and Todo briefs belong on the Linear issue.
 - Long-lived experience memory belongs in Linear Project docs.
+- Final run summaries, when useful, are concise Markdown `Run Note` sections.
+- Do not return JSON as a run contract.
 
 ## Embedded Shared Loop Contract
 

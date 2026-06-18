@@ -221,7 +221,7 @@ Expected behavior:
 - If heartbeat expired, the owning loop routes to Memory/Reconcile or Coordinator.
 - If Linear changed and fingerprint is different, the old run is marked superseded and
   the owning loop retries from the latest issue snapshot.
-- Output from the old run cannot move state unless fresh CAS checks still match
+- Work from the old run cannot move state unless fresh CAS checks still match
   current gates.
 
 ## 15. Multiple Executors Run the Same Loop
@@ -232,8 +232,8 @@ Input:
 
 Expected behavior:
 
-- Both outputs include `observed.runId` and `observed.fingerprint`.
-- At most one output matching the active run and current Linear snapshot may apply.
+- Both executors record `observed.runId` and `observed.fingerprint` in local state.
+- At most one executor matching the active run and current Linear snapshot may apply.
 - The later duplicate becomes `no_op` unless it contains non-conflicting read-only
   evidence worth merging into memory.
 - No duplicate executor can create an extra write lock or move state from stale data.

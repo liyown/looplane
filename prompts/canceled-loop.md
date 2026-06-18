@@ -20,4 +20,5 @@ automation accidentally.
 
 ## Output Requirements
 
-Return JSON per the shared loop contract. Usually `nextState` remains `Canceled`.
+Apply allowed Linear and local state changes directly. Usually the issue remains
+`Canceled`. If useful, finish with a short Markdown `Run Note`; do not return JSON.

@@ -46,4 +46,5 @@ Move to `Canceled` when:
 
 ## Output Requirements
 
-Return JSON per the shared loop contract.
+Apply allowed Linear and local state changes directly. If useful, finish with a short
+Markdown `Run Note`; do not return JSON.

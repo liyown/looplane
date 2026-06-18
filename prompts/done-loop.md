@@ -28,4 +28,5 @@ You are the Done loop. You perform terminal bookkeeping for completed issues.
 
 ## Output Requirements
 
-Return JSON per the shared loop contract. Usually `nextState` remains `Done`.
+Apply allowed Linear and local state changes directly. Usually the issue remains
+`Done`. If useful, finish with a short Markdown `Run Note`; do not return JSON.

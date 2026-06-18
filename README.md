@@ -3,7 +3,7 @@
 Chinese docs: [README.zh-CN.md](README.zh-CN.md)
 
 A Linear-centered loop system for local agents. Looplane maintains the loop contracts,
-standalone prompts, schemas, and validation scripts; Linear remains the operating
+standalone prompts, examples, and validation scripts; Linear remains the operating
 surface.
 
 This is closer to current loop engineering than traditional prompt engineering. The
@@ -20,7 +20,8 @@ transitions, conflicts, and scheduled execution form a durable loop.
 
 Do not paste source prompts from `prompts/` into schedules. User-facing prompts live
 under `dist/zh-CN/prompts/*.standalone.md` and already embed the shared contract,
-local directory conventions, and Loop Final Report shape.
+local directory conventions, Markdown run note convention, and runtime issue log
+format.
 
 ## What It Solves
 
@@ -135,20 +136,16 @@ Each state loop must:
 5. Apply only if state, `updatedAt`, fingerprint, active run, and lease or lock data
    still match.
 6. Escalate to Coordinator when the snapshot is stale.
-7. Return a Loop Final Report for logs and exception rollups, not as a second
-   database.
+7. Write durable facts to Linear, GitHub, Project Docs, or `~/.linear-loop`; if a
+   final summary is useful, make it a short Markdown `Run Note`.
 
 ## Maintainer Files
 
 - [prompts/](prompts/) - modular prompt sources.
-- [schemas/loop-result.schema.json](schemas/loop-result.schema.json) - Loop Final
-  Report shape.
 - [scripts/build-standalone-prompts.py](scripts/build-standalone-prompts.py) -
   generates the copy pack.
 - [scripts/validate-copy-pack.py](scripts/validate-copy-pack.py) - validates the copy
   pack.
-- [scripts/validate-loop-schema.py](scripts/validate-loop-schema.py) - validates schema
-  and fixtures.
 
 After changing prompts, run:
 
@@ -156,7 +153,6 @@ After changing prompts, run:
 python3 scripts/build-standalone-prompts.py
 python3 scripts/build-standalone-prompts.py --check
 python3 scripts/validate-copy-pack.py
-python3 scripts/validate-loop-schema.py
 ```
 
 ## Do Not
@@ -167,6 +163,6 @@ python3 scripts/validate-loop-schema.py
 - Do not let In Progress modify code without a Repo Manager write lock.
 - Do not use Coordinator for routine state movement.
 - Do not hide issue-bound evidence in `~/.linear-loop` as long-term truth.
-- Do not hide prompt, schema, access, Linear setup, or local storage problems in
-  comments only; emit `runtimeIssues[]` and append them to
+- Do not hide prompt, access, Linear setup, or local storage problems in comments
+  only; append runtime issue records to
   `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`.

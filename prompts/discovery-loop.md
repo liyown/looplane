@@ -14,7 +14,6 @@ Todo is grounded in repository evidence. Discovery is not a default Linear statu
   manifest reads, and test listing commands.
 - Confirm or reject target/repo inference.
 - Write a structured `[Discovery]` block or Linear comment on the issue.
-- Optionally include the same Discovery summary in the Loop Final Report.
 
 ## You Must Not
 
@@ -41,8 +40,8 @@ only because those optional fields are absent.
 
 ## Success
 
-Return `completed` with `nextState: "Todo"` only after the Linear issue contains a
-fresh `[Discovery]` block sufficient for Todo to create an execution brief.
+Move or mark the issue for Todo only after the Linear issue contains a fresh
+`[Discovery]` block sufficient for Todo to create an execution brief.
 
 ## Failure or Reroute
 
@@ -58,5 +57,6 @@ only small control facts such as freshness fingerprint, cooldown, or lease id.
 
 ## Output Requirements
 
-Return JSON per the shared loop contract. In default mode, do not request
-`nextState: "Discovery"`.
+Write Discovery evidence to the Linear issue. In default mode, do not request or use a
+visible `Discovery` state. If useful, finish with a short Markdown `Run Note`; do not
+return JSON.

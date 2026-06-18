@@ -30,7 +30,8 @@ loop。
 ## 2. 复制 standalone prompts 到运行入口
 
 使用 [dist/zh-CN/prompts/](dist/zh-CN/prompts/) 里的文件。每个文件都是自包含
-prompt，已经嵌入共享契约、Loop Final Report 结构和 `~/.linear-loop` 目录规则。
+prompt，已经嵌入共享契约、Markdown run note 约定、runtime issue 日志格式和
+`~/.linear-loop` 目录规则。
 
 | 运行方式 | 粘贴的 prompt |
 | --- | --- |
@@ -81,7 +82,7 @@ prompt，已经嵌入共享契约、Loop Final Report 结构和 `~/.linear-loop`
 - 代码类 issue 进入 `Todo` 前必须有 fresh `[Discovery]`。
 - In Progress 改代码前必须拿到 Repo Manager write lock。
 - Repo Manager 只能 clone Linear Project `Agent Project Settings` 声明过的 origin。
-- 运行时发现系统问题时，输出 `runtimeIssues[]`，并追加到
+- 运行时发现系统问题时，直接追加 runtime issue record 到
   `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`。
 
 ## 维护复制包
@@ -92,5 +93,4 @@ prompt，已经嵌入共享契约、Loop Final Report 结构和 `~/.linear-loop`
 python3 scripts/build-standalone-prompts.py
 python3 scripts/build-standalone-prompts.py --check
 python3 scripts/validate-copy-pack.py
-python3 scripts/validate-loop-schema.py
 ```

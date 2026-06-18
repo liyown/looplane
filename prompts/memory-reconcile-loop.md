@@ -14,8 +14,8 @@ stale-run marking, and safe retry conditions.
 - Detect repeated blockers.
 - Detect human state/label changes.
 - Detect GitHub/PR automation drift.
-- Detect repeated runtime issues that point to prompt, schema, loop runtime, or Linear
-  setup changes.
+- Detect repeated runtime issues that point to prompt, loop contract, loop runtime, or
+  Linear setup changes.
 - Roll up useful lesson candidates into Linear Project docs when repeated and
   actionable.
 - Recommend local state patches and concise Linear comments.
@@ -33,8 +33,8 @@ stale-run marking, and safe retry conditions.
 - Linear current state is the collaboration truth.
 - Local state is stale if issue updatedAt, labels, description hash, target, Linear
   Project settings version, or relevant repo HEAD no longer match.
-- Worker output is stale if its observed snapshot no longer matches current Linear or
-  its run reservation is no longer active.
+- A run is stale if its observed snapshot no longer matches current Linear or its run
+  reservation is no longer active.
 - Linear issue evidence is stale if its freshness inputs no longer match current
   context.
 
@@ -44,8 +44,8 @@ stale-run marking, and safe retry conditions.
 - Expired active run with same run key: recommend resume only after checking lease,
   worktree, and latest Linear state; otherwise mark expired and allow replacement.
 - Active run with older fingerprint: mark superseded.
-- Output from superseded, expired, or stale run: reject state transitions; optionally
-  safe-merge non-conflicting read-only evidence.
+- Superseded, expired, or stale run: reject state transitions; optionally safe-merge
+  non-conflicting read-only evidence.
 - Terminal Linear state: mark all active runs stale.
 - Duplicate executor output: accept only the result already applied by the owning loop
   or the one matching the current active run; mark later duplicates no-op.
@@ -80,4 +80,5 @@ keep them as candidates.
 
 ## Output Requirements
 
-Return JSON per the shared loop contract.
+Write reconciliation results to Linear or local state directly. If useful, finish with
+a short Markdown `Run Note`; do not return JSON.

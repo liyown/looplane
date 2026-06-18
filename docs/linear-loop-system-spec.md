@@ -8,12 +8,13 @@ name repositories, read repositories before planning implementation, and tolerat
 manual Linear changes, GitHub/PR automation, unfinished prior runs, and multiple
 local executors. Runtime control state lives under `~/.linear-loop`; issue evidence
 lives on Linear issues; long-lived experience memory lives in Linear Project docs.
-This repository is the source for maintained prompts, schema, tests, and generated
-copy packs.
+This repository is the source for maintained prompts, examples, validation scripts,
+and generated copy packs.
 
 The v1 default optimizes for first use: few visible statuses, few labels, independent
-state loops, a small output schema, and one Coordinator loop for exceptions. Normal
-state progression is owned by the loop responsible for the current Linear state.
+state loops that write their own results, and one Coordinator loop for exceptions.
+Normal state progression is owned by the loop responsible for the current Linear
+state.
 
 ## 2. External Practices Incorporated
 
@@ -432,11 +433,11 @@ Issue memory example:
 ```
 
 Runtime issues are append-only records for system problems found while loops run. They
-are not product issue requirements. Each loop appends emitted `runtimeIssues[]`
-objects to `~/.linear-loop/runtime-issues/YYYY-MM.jsonl` with the observed issue id,
-loop, and timestamp. Coordinator or Memory/Reconcile uses repeated records as
-iteration input for prompts, schema, loop runtime behavior, Linear setup, or repo
-access.
+are not product issue requirements. Each loop appends one JSON object per line to
+`~/.linear-loop/runtime-issues/YYYY-MM.jsonl` with timestamp, source, severity,
+summary, detail, suggested change, and optional issue/run evidence. Coordinator or
+Memory/Reconcile uses repeated records as iteration input for prompts, loop contract,
+loop runtime behavior, Linear setup, or repo access.
 
 Fingerprint inputs:
 
@@ -515,12 +516,12 @@ Default policy is one primary executor per `issueId + loop + fingerprint`.
 
 If two executors start anyway:
 
-- Both outputs must echo observed claim snapshots.
-- Only the first output that matches the active run reservation and current Linear
-  snapshot may apply changes.
-- Later matching outputs become `no_op` unless they add non-conflicting evidence.
-- Any output from a non-active run, old fingerprint, old state, or expired write lock
-  is stale.
+- Each executor must compare against its observed claim snapshot before writing.
+- Only the first executor whose reservation and current Linear snapshot still match
+  may apply changes.
+- Later matching executors become no-op unless they add non-conflicting evidence.
+- Any executor with a non-active run, old fingerprint, old state, or expired write
+  lock is stale.
 
 Read-only loops may use multiple executors only when the owning loop or Coordinator
 creates explicit shards, for example `discovery:frontend` and `discovery:tests`.
@@ -538,68 +539,36 @@ Progress remains single-writer per repo/worktree by default.
 
 ## 11. v1 Claim and Apply Protocol
 
-State-loop outputs may be applied by the owning loop after fresh compare-and-set
-checks. Coordinator applies only exceptional reconciliation actions.
+State loops apply their own allowed changes after fresh compare-and-set checks.
+Coordinator applies only exceptional reconciliation actions.
 
-Every worker output must echo the observed snapshot:
+Observed snapshots are local control state. A claim record should include the issue
+id, run id, loop name, optional shard, fingerprint, Linear updatedAt, Linear state,
+description/comment hash, memory version, and lease or lock id.
 
-```json
-{
-  "observed": {
-    "issueId": "ABC-123",
-    "runId": "run-20260617-abc123",
-    "loop": "todo",
-    "shard": "optional-read-only-shard",
-    "fingerprint": "sha256...",
-    "updatedAt": "2026-06-17T10:00:00Z",
-    "state": "Todo",
-    "descriptionHash": "sha256:...",
-    "memoryVersion": 4,
-    "leaseId": "lease-123"
-  }
-}
-```
+Handoffs are durable state. Use the place the next loop can read:
 
-Workers use structured request fields when the result needs another loop or service
-worker without relying on a visible Linear state transition:
-
-```json
-{
-  "nextState": "Backlog",
-  "requestedWorker": "discovery"
-}
-```
-
-`requestedWorker` is intentionally small: `discovery`, `memory-reconcile`,
-`repo-manager`, `coordinator`, or `null`.
-
-Use `escalation` only for exceptional or blocking handoffs:
-
-```json
-{
-  "nextState": null,
-  "requestedWorker": "coordinator",
-  "escalation": {
-    "target": "coordinator",
-    "kind": "cas_conflict",
-    "blocking": true,
-    "reason": "Current Linear updatedAt no longer matches the observed snapshot."
-  }
-}
-```
+- Linear issue comments or blocks for issue-bound evidence and requests.
+- Labels for human-visible blockers.
+- `~/.linear-loop/state/issues/` for issue-local handoff markers.
+- `~/.linear-loop/state/locks/` for leases and write locks.
+- `~/.linear-loop/runtime-issues/YYYY-MM.jsonl` for system problems.
 
 Apply process:
 
-1. State loop claims an issue in its owned source state and records `observed`.
-2. State loop validates its own output against schema.
-3. State loop re-reads Linear and memory immediately before apply.
+1. State loop claims an issue in its owned source state and records the observed
+   snapshot.
+2. State loop performs its own allowed work.
+3. State loop re-reads Linear and local state immediately before apply.
 4. State loop checks active run reservation, fingerprint, state, updatedAt, and
    relevant lease/lock status.
 5. If all compare-and-set checks pass, the state loop applies allowed state, label,
-   comment, and memory changes.
+   comment, GitHub, filesystem, and local state changes.
 6. If any check fails, the state loop does not apply. It marks the run stale/no-op or
-   escalates to Coordinator.
-7. Coordinator handles only reconciliation, safe evidence merges, stale markings,
+   records a Coordinator-facing handoff marker.
+7. If a final summary is useful, the loop writes a short Markdown `Run Note` for
+   humans. Later loops must not depend on that note.
+8. Coordinator handles only reconciliation, safe evidence merges, stale markings,
    illegal state reroutes, and cross-loop coordination.
 
 ## 12. Human and Automation Reconciliation Matrix
@@ -651,8 +620,8 @@ GitHub/PR automation changed state:
 - If target is `no-code` or `parent`, required non-repo evidence exists.
 
 When the only missing gate is a fresh `[Discovery]` block, Backlog remains the visible
-state in default mode. The Backlog worker should propose
-`requestedWorker: "discovery"` rather than requesting a visible Discovery state.
+state in default mode. The Backlog worker should record a Discovery handoff marker
+rather than requesting a visible Discovery state.
 
 ### Todo -> In Progress
 
@@ -692,8 +661,8 @@ smallest concrete choice.
 
 ### Missing Discovery
 
-Do not move code-backed work to Todo. Keep in Backlog, request internal Discovery with
-`requestedWorker: "discovery"`, and explain that Todo requires repository evidence.
+Do not move code-backed work to Todo. Keep in Backlog, record an internal Discovery
+handoff marker, and explain that Todo requires repository evidence.
 
 ### Stale Discovery
 
@@ -764,10 +733,10 @@ The v1 system is ready when:
 - Default labels stay small.
 - Execution target resolution works without per-issue repo declarations.
 - Code-backed Todo requires a fresh `[Discovery]` block on the Linear issue.
-- Worker outputs echo observed run context.
+- Loops record observed run context for compare-and-set checks.
 - State loops re-read Linear and local state before applying allowed transitions.
 - Coordinator handles conflicts, stale runs, and exceptional routing.
 - Unfinished prior runs and duplicate executors have deterministic handling.
 - Manual edits and GitHub automation have deterministic reconciliation behavior.
-- Schema and examples support the v1 default profile without requiring advanced
-  escalation fields.
+- Examples and validation support the v1 default profile without requiring a
+  machine-readable run result.

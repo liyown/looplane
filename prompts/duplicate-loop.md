@@ -20,4 +20,5 @@ canonical issue.
 
 ## Output Requirements
 
-Return JSON per the shared loop contract. Usually `nextState` remains `Duplicate`.
+Apply allowed Linear and local state changes directly. Usually the issue remains
+`Duplicate`. If useful, finish with a short Markdown `Run Note`; do not return JSON.

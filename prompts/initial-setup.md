@@ -24,7 +24,7 @@ Create or verify the local runtime directory before configuring schedules:
 ```
 
 `~/.linear-loop` is the runtime space. This prompt repository is only the source for
-maintained prompts, schema, examples, and generated copy packs.
+maintained prompts, examples, validation scripts, and generated copy packs.
 
 If `config.yaml` is missing, create a minimal file with:
 
@@ -39,7 +39,8 @@ agent:
 ```
 
 If the schedule cannot access the user's local home directory, stop and return a
-runtime issue. Do not continue with volatile storage.
+Markdown run note explaining the storage problem. Do not continue with volatile
+storage.
 
 ## Default Setup
 
@@ -147,7 +148,7 @@ Create a no-code healthcheck issue that proves:
 - Triage acceptance works.
 - Backlog can set `Target/No-Code`.
 - Todo can process a no-code execution brief.
-- Schema output validates.
+- The loop can write a Markdown run note and append runtime issue records when needed.
 
 ## Start Instructions
 

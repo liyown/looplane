@@ -36,12 +36,10 @@ Linear issue.
 - Verification commands or explicit reason they are unavailable.
 - Risks and rollback considerations.
 
-Return these as structured `executionBrief` fields, not only as prose in
-`linearComment`. The brief can include extra analysis fields, but the owning loop and
-Coordinator must be able to read the required fields directly from JSON.
-
-Also write a concise structured `[Todo Brief]` block or Linear comment to the issue.
-Do not store Todo briefs as default local files.
+Write these fields into a concise structured `[Todo Brief]` block or Linear comment.
+The brief can include extra analysis fields, but later loops must be able to read the
+required fields directly from the Linear issue. Do not store Todo briefs as default
+local files.
 
 ## Move to In Progress When
 
@@ -63,9 +61,11 @@ Do not store Todo briefs as default local files.
   current issue context.
 
 Keep the visible state at Todo or move back to Backlog as appropriate, and express the
-internal request with `requestedWorker: "discovery"`. Add `escalation` only when a
-stale run, CAS conflict, or human/automation drift needs Coordinator handling.
+internal request with a Linear comment or local state handoff marker. Involve
+Coordinator only when a stale run, CAS conflict, or human/automation drift needs
+coordination.
 
 ## Output Requirements
 
-Return JSON per the shared loop contract.
+Write the `[Todo Brief]`, allowed state change, labels, and local state directly. If
+useful, finish with a short Markdown `Run Note`; do not return JSON.

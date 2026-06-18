@@ -48,7 +48,7 @@
   <text class="t" x="420" y="240">3. Do allowed Linear, GitHub, and local work</text>
   <text class="t" x="420" y="270">4. Re-read before writing</text>
   <text class="t" x="420" y="300">5. Apply only if snapshot still matches</text>
-  <text class="t" x="420" y="330">6. Return Loop Final Report</text>
+  <text class="t" x="420" y="330">6. Write Markdown Run Note if useful</text>
   <rect class="pill2" x="420" y="366" width="292" height="36" rx="18"/>
   <text class="s" x="442" y="389">No second database. Linear remains visible state.</text>
 
