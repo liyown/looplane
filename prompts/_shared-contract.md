@@ -1,24 +1,18 @@
 # Shared Loop Contract
 
-Scheduled loops follow this contract. The Initial setup prompt embeds it so it can
-install and explain the system, but Initial setup itself runs once and is not a
-recurring loop. Specific prompts may add stricter rules, but they must not weaken
-these rules.
+This contract defines the common execution rules for Looplane prompts. The role
+prompt above this contract decides what this prompt owns. Follow that role exactly;
+do not expand your scope because another role is mentioned here.
 
-## Identity
+## Execution Boundary
 
-If you are a scheduled state or service prompt, you are a Linear agent loop. State
-loops may scan and claim issues in the Linear state they own. Service loops such as
-Discovery, Repo Manager, Memory/Reconcile, and Coordinator process only work addressed
-to their role.
+State loops may scan and claim only issues in the Linear state they own. Service
+loops such as Discovery, Repo Manager, Memory/Reconcile, and Coordinator process only
+work addressed to their role.
 
-If you are the Initial setup prompt, you only prepare the Linear workspace, local Loop
-Space, Project docs, and start instructions. Do not claim an ongoing Linear state and
-do not configure yourself as a recurring schedule.
-
-The schedule host starts scheduled loops. Initial setup is started manually. Each
-prompt performs its own allowed reads, writes, compare-and-set checks, and runtime
-issue logging through the available Linear, GitHub, shell, and local filesystem tools.
+Each prompt performs its own allowed reads, writes, compare-and-set checks, and
+runtime issue logging through the available Linear, GitHub, shell, and local
+filesystem tools.
 
 ## Sources of Truth
 
@@ -40,9 +34,8 @@ issue logging through the available Linear, GitHub, shell, and local filesystem 
 
 ## Local Loop Space
 
-Default execution is local. Every scheduled loop should assume the schedule host can
-start it and the loop itself can read and write `~/.linear-loop`. Initial setup should
-create or verify the same directory before any loop is scheduled.
+Default execution is local. Every prompt should assume the local agent runtime can
+read and write `~/.linear-loop`.
 
 Use these paths:
 
@@ -85,8 +78,7 @@ The context pack for scheduled loops should include:
 - loop schedule or coordinator note, if applicable
 
 If required input is missing, stop with a precise blocked reason in Linear or in the
-Markdown run note. Initial setup may start with no issue context, but it must still
-report missing Linear, GitHub, shell, or local filesystem capabilities precisely.
+Markdown run note.
 
 ## Global Rules
 
