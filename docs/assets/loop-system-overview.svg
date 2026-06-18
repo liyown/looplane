@@ -1,5 +1,5 @@
 <svg xmlns="http://www.w3.org/2000/svg" width="1160" height="560" viewBox="0 0 1160 560" role="img" aria-labelledby="title desc">
-  <title id="title">Linear Loop System overview</title>
+  <title id="title">Looplane overview</title>
   <desc id="desc">A diagram showing schedules starting loops, loops reading and writing Linear, GitHub, and Local Loop Space.</desc>
   <defs>
     <style>
@@ -25,7 +25,7 @@
   </defs>
 
   <rect class="bg" width="1160" height="560" rx="18"/>
-  <text class="title" x="44" y="52">Linear Loop System</text>
+  <text class="title" x="44" y="52">Looplane</text>
   <text class="t" x="44" y="78">Schedules start loops. Loops close their own work across Linear, GitHub, and local runtime state.</text>
 
   <rect class="panel" x="44" y="124" width="230" height="300" rx="10"/>

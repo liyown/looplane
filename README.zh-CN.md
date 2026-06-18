@@ -1,13 +1,13 @@
-# Linear Loop System
+# Looplane
 
-把 Linear issue 交给一组本地 agent loop 持续处理。这个仓库维护 loop 的契约、
+把 Linear issue 交给一组本地 agent loop 持续处理。Looplane 维护 loop 的契约、
 standalone prompts、schema 和验证脚本；真正的运行界面仍然是 Linear。
 
 它更接近最近很火的 loop 工程，而不是传统 prompt 工程。重点不是写一段漂亮
 prompt，而是把状态、证据、记忆、迁移、冲突处理和周期性执行组织成能长期运转的
 闭环。
 
-![Linear Loop overview](docs/assets/loop-system-overview.svg)
+![Looplane overview](docs/assets/loop-system-overview.svg)
 
 ## 先从这里开始
 

@@ -1,16 +1,16 @@
-# Linear Loop System
+# Looplane
 
 Chinese docs: [README.zh-CN.md](README.zh-CN.md)
 
-A Linear-centered loop system for local agents. This repository maintains the loop
-contracts, standalone prompts, schemas, and validation scripts; Linear remains the
-operating surface.
+A Linear-centered loop system for local agents. Looplane maintains the loop contracts,
+standalone prompts, schemas, and validation scripts; Linear remains the operating
+surface.
 
 This is closer to current loop engineering than traditional prompt engineering. The
 work is not one clever prompt. The work is making state, evidence, memory,
 transitions, conflicts, and scheduled execution form a durable loop.
 
-![Linear Loop overview](docs/assets/loop-system-overview.svg)
+![Looplane overview](docs/assets/loop-system-overview.svg)
 
 ## Start Here
 
