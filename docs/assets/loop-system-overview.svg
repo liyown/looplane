@@ -1,0 +1,80 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="560" viewBox="0 0 1160 560" role="img" aria-labelledby="title desc">
+  <title id="title">Linear Loop System overview</title>
+  <desc id="desc">A diagram showing schedules starting loops, loops reading and writing Linear, GitHub, and Local Loop Space.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f7f8fb; }
+      .panel { fill: #ffffff; stroke: #d8dde8; stroke-width: 1.4; }
+      .panel-strong { fill: #ffffff; stroke: #5964f2; stroke-width: 2; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 22px; font-weight: 700; fill: #111827; }
+      .h { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 16px; font-weight: 700; fill: #111827; }
+      .t { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 13px; font-weight: 500; fill: #4b5563; }
+      .s { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 12px; font-weight: 600; fill: #6b7280; }
+      .pill { fill: #eef2ff; stroke: #c7d2fe; }
+      .pill2 { fill: #ecfdf5; stroke: #bbf7d0; }
+      .pill3 { fill: #fff7ed; stroke: #fed7aa; }
+      .arrow { stroke: #5964f2; stroke-width: 2.2; fill: none; marker-end: url(#arrow); }
+      .muted-arrow { stroke: #9aa3b2; stroke-width: 1.8; fill: none; marker-end: url(#mutedArrow); stroke-dasharray: 6 6; }
+    </style>
+    <marker id="arrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#5964f2"/>
+    </marker>
+    <marker id="mutedArrow" viewBox="0 0 10 10" refX="8.5" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M 0 0 L 10 5 L 0 10 z" fill="#9aa3b2"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" width="1160" height="560" rx="18"/>
+  <text class="title" x="44" y="52">Linear Loop System</text>
+  <text class="t" x="44" y="78">Schedules start loops. Loops close their own work across Linear, GitHub, and local runtime state.</text>
+
+  <rect class="panel" x="44" y="124" width="230" height="300" rx="10"/>
+  <text class="h" x="68" y="160">AG schedules</text>
+  <rect class="pill" x="68" y="186" width="150" height="34" rx="17"/>
+  <text class="s" x="86" y="208">Triage loop</text>
+  <rect class="pill" x="68" y="232" width="150" height="34" rx="17"/>
+  <text class="s" x="86" y="254">Backlog loop</text>
+  <rect class="pill" x="68" y="278" width="150" height="34" rx="17"/>
+  <text class="s" x="86" y="300">Todo loop</text>
+  <rect class="pill" x="68" y="324" width="150" height="34" rx="17"/>
+  <text class="s" x="86" y="346">In Progress loop</text>
+  <rect class="pill" x="68" y="370" width="150" height="34" rx="17"/>
+  <text class="s" x="86" y="392">Coordinator</text>
+
+  <rect class="panel-strong" x="392" y="112" width="376" height="332" rx="12"/>
+  <text class="h" x="420" y="150">Loop execution</text>
+  <text class="t" x="420" y="180">1. Scan only owned Linear state</text>
+  <text class="t" x="420" y="210">2. Claim issue and record observed snapshot</text>
+  <text class="t" x="420" y="240">3. Do allowed Linear, GitHub, and local work</text>
+  <text class="t" x="420" y="270">4. Re-read before writing</text>
+  <text class="t" x="420" y="300">5. Apply only if snapshot still matches</text>
+  <text class="t" x="420" y="330">6. Return Loop Final Report</text>
+  <rect class="pill2" x="420" y="366" width="292" height="36" rx="18"/>
+  <text class="s" x="442" y="389">No second database. Linear remains visible state.</text>
+
+  <rect class="panel" x="880" y="92" width="230" height="116" rx="10"/>
+  <text class="h" x="904" y="128">Linear issues</text>
+  <text class="t" x="904" y="156">Facts, Discovery, Todo Brief,</text>
+  <text class="t" x="904" y="180">execution and verification.</text>
+
+  <rect class="panel" x="880" y="232" width="230" height="116" rx="10"/>
+  <text class="h" x="904" y="268">Project Docs</text>
+  <text class="t" x="904" y="296">Agent Guidance, Repo Notes,</text>
+  <text class="t" x="904" y="320">Decision Log.</text>
+
+  <rect class="panel" x="880" y="372" width="230" height="116" rx="10"/>
+  <text class="h" x="904" y="408">Local Loop Space</text>
+  <text class="t" x="904" y="436">Locks, cooldowns, runtime issues,</text>
+  <text class="t" x="904" y="460">repos and worktrees.</text>
+
+  <rect class="panel" x="392" y="468" width="376" height="48" rx="10"/>
+  <text class="t" x="420" y="498">GitHub is touched only when a loop is allowed to read or modify code.</text>
+
+  <path class="arrow" d="M 274 274 C 322 274, 340 274, 388 274"/>
+  <path class="arrow" d="M 768 168 C 808 150, 832 142, 876 142"/>
+  <path class="arrow" d="M 768 278 C 810 282, 832 288, 876 290"/>
+  <path class="arrow" d="M 768 382 C 810 412, 832 428, 876 430"/>
+  <path class="muted-arrow" d="M 580 444 C 580 454, 580 458, 580 466"/>
+
+  <text class="s" x="44" y="532">Sanitized explanatory asset.</text>
+</svg>

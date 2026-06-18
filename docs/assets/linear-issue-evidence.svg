@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="620" viewBox="0 0 1160 620" role="img" aria-labelledby="title desc">
+  <title id="title">Linear issue evidence placement</title>
+  <desc id="desc">A sanitized Linear-style issue view showing where Discovery, Todo Brief, execution summary, and verification are stored.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f6f7fb; }
+      .app { fill: #ffffff; stroke: #d9dee8; stroke-width: 1.4; }
+      .side { fill: #f2f4f8; }
+      .line { stroke: #dde2ec; stroke-width: 1; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 22px; font-weight: 700; fill: #111827; }
+      .h { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 17px; font-weight: 700; fill: #111827; }
+      .t { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 13px; font-weight: 500; fill: #4b5563; }
+      .s { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 12px; font-weight: 600; fill: #6b7280; }
+      .code { font-family: ui-monospace, SFMono-Regular, Menlo, monospace; font-size: 13px; font-weight: 700; fill: #374151; }
+      .tag { fill: #eef2ff; stroke: #c7d2fe; }
+      .tag-green { fill: #ecfdf5; stroke: #bbf7d0; }
+      .tag-orange { fill: #fff7ed; stroke: #fed7aa; }
+      .comment { fill: #ffffff; stroke: #d8dde8; }
+      .callout { fill: #111827; opacity: 0.92; }
+      .callout-text { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 13px; font-weight: 700; fill: #ffffff; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1160" height="620" rx="18"/>
+  <rect class="app" x="52" y="50" width="1056" height="518" rx="14"/>
+  <rect class="side" x="52" y="50" width="220" height="518" rx="14"/>
+  <line class="line" x1="272" y1="50" x2="272" y2="568"/>
+
+  <text class="s" x="82" y="92">Workspace</text>
+  <text class="h" x="82" y="126">Projects</text>
+  <text class="t" x="82" y="164">Agent Project</text>
+  <text class="t" x="82" y="198">Issues</text>
+  <text class="t" x="82" y="232">Views</text>
+  <text class="t" x="82" y="266">Project Docs</text>
+
+  <text class="s" x="316" y="98">LIU-142</text>
+  <text class="title" x="316" y="132">Improve checkout error handling</text>
+  <rect class="tag" x="316" y="154" width="74" height="28" rx="14"/>
+  <text class="s" x="336" y="173">Todo</text>
+  <rect class="tag-green" x="402" y="154" width="112" height="28" rx="14"/>
+  <text class="s" x="424" y="173">Area/Backend</text>
+  <rect class="tag-orange" x="526" y="154" width="94" height="28" rx="14"/>
+  <text class="s" x="546" y="173">repo: app</text>
+
+  <text class="h" x="316" y="222">Description</text>
+  <text class="t" x="316" y="252">User-facing error copy is inconsistent after payment retries.</text>
+  <text class="t" x="316" y="278">Keep the issue brief. Let loop evidence accumulate below.</text>
+
+  <rect class="comment" x="316" y="318" width="350" height="132" rx="10"/>
+  <text class="code" x="340" y="350">[Discovery]</text>
+  <text class="t" x="340" y="380">Scope, affected files, dependencies, risks,</text>
+  <text class="t" x="340" y="406">missing information, and freshness timestamp.</text>
+  <rect class="callout" x="534" y="336" width="104" height="28" rx="14"/>
+  <text class="callout-text" x="552" y="355">Backlog gate</text>
+
+  <rect class="comment" x="700" y="318" width="350" height="132" rx="10"/>
+  <text class="code" x="724" y="350">[Todo Brief]</text>
+  <text class="t" x="724" y="380">Implementation plan, acceptance criteria,</text>
+  <text class="t" x="724" y="406">test commands, and rollback notes.</text>
+  <rect class="callout" x="906" y="336" width="116" height="28" rx="14"/>
+  <text class="callout-text" x="924" y="355">Todo handoff</text>
+
+  <rect class="comment" x="316" y="474" width="350" height="54" rx="10"/>
+  <text class="code" x="340" y="507">[Execution Summary]</text>
+  <rect class="comment" x="700" y="474" width="350" height="54" rx="10"/>
+  <text class="code" x="724" y="507">[Verification]</text>
+
+  <text class="s" x="52" y="594">Sanitized explanatory asset. Replace with a real Linear issue screenshot when capture permission is available.</text>
+</svg>

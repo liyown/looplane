@@ -1,0 +1,69 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1160" height="620" viewBox="0 0 1160 620" role="img" aria-labelledby="title desc">
+  <title id="title">Linear Project Docs memory placement</title>
+  <desc id="desc">A sanitized Linear-style project docs view showing Agent Guidance, Repo Notes, and Decision Log.</desc>
+  <defs>
+    <style>
+      .bg { fill: #f6f7fb; }
+      .app { fill: #ffffff; stroke: #d9dee8; stroke-width: 1.4; }
+      .side { fill: #f2f4f8; }
+      .line { stroke: #dde2ec; stroke-width: 1; }
+      .title { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 22px; font-weight: 700; fill: #111827; }
+      .h { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 17px; font-weight: 700; fill: #111827; }
+      .t { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 13px; font-weight: 500; fill: #4b5563; }
+      .s { font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif; font-size: 12px; font-weight: 600; fill: #6b7280; }
+      .doc { fill: #ffffff; stroke: #d8dde8; }
+      .active { fill: #eef2ff; stroke: #c7d2fe; }
+      .chip { fill: #f3f4f6; stroke: #d1d5db; }
+    </style>
+  </defs>
+
+  <rect class="bg" width="1160" height="620" rx="18"/>
+  <rect class="app" x="52" y="50" width="1056" height="518" rx="14"/>
+  <rect class="side" x="52" y="50" width="250" height="518" rx="14"/>
+  <line class="line" x1="302" y1="50" x2="302" y2="568"/>
+
+  <text class="s" x="82" y="92">Project</text>
+  <text class="h" x="82" y="126">Agent Project</text>
+  <text class="t" x="82" y="164">Issues</text>
+  <text class="t" x="82" y="198">Milestones</text>
+  <text class="t" x="82" y="232">Documents</text>
+
+  <rect class="active" x="82" y="278" width="180" height="36" rx="9"/>
+  <text class="s" x="104" y="301">Agent Guidance</text>
+  <rect class="doc" x="82" y="326" width="180" height="36" rx="9"/>
+  <text class="s" x="104" y="349">Repo Notes/app</text>
+  <rect class="doc" x="82" y="374" width="180" height="36" rx="9"/>
+  <text class="s" x="104" y="397">Decision Log</text>
+  <rect class="doc" x="82" y="422" width="180" height="36" rx="9"/>
+  <text class="s" x="104" y="445">Agent Project Settings</text>
+
+  <text class="title" x="350" y="112">Agent Guidance</text>
+  <text class="t" x="350" y="146">Long-lived lessons that should change how future loops behave.</text>
+
+  <rect class="chip" x="350" y="182" width="150" height="30" rx="15"/>
+  <text class="s" x="374" y="202">Team preference</text>
+  <rect class="chip" x="512" y="182" width="132" height="30" rx="15"/>
+  <text class="s" x="536" y="202">Loop habit</text>
+  <rect class="chip" x="656" y="182" width="146" height="30" rx="15"/>
+  <text class="s" x="680" y="202">Review signal</text>
+
+  <rect class="doc" x="350" y="248" width="320" height="96" rx="10"/>
+  <text class="h" x="374" y="284">General guidance</text>
+  <text class="t" x="374" y="314">Prefer small PRs for state-machine changes.</text>
+
+  <rect class="doc" x="706" y="248" width="320" height="96" rx="10"/>
+  <text class="h" x="730" y="284">Repo Notes/{repoSlug}</text>
+  <text class="t" x="730" y="314">Test command, package manager, layout, pitfalls.</text>
+
+  <rect class="doc" x="350" y="376" width="320" height="96" rx="10"/>
+  <text class="h" x="374" y="412">Decision Log</text>
+  <text class="t" x="374" y="442">Why a long-lived operating decision exists.</text>
+
+  <rect class="doc" x="706" y="376" width="320" height="96" rx="10"/>
+  <text class="h" x="730" y="412">Lesson candidates</text>
+  <text class="t" x="730" y="442">Temporary local queue before reconcile.</text>
+
+  <line class="line" x1="350" y1="516" x2="1026" y2="516"/>
+  <text class="s" x="350" y="544">Issue facts stay on issues. Durable experience moves into Project Docs.</text>
+  <text class="s" x="52" y="594">Sanitized explanatory asset. Replace with a real Linear Project Docs screenshot when capture permission is available.</text>
+</svg>

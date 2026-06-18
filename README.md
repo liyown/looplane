@@ -2,59 +2,107 @@
 
 Chinese docs: [README.zh-CN.md](README.zh-CN.md)
 
-This repository maintains a Linear-based loop system for local agents. It is closer
-to current loop engineering than traditional prompt engineering: the core work is not
-writing one good prompt, but organizing state, evidence, memory, transitions,
-conflicts, and scheduled execution into a durable operating loop.
+A Linear-centered loop system for local agents. This repository maintains the loop
+contracts, standalone prompts, schemas, and validation scripts; Linear remains the
+operating surface.
 
-The default model: an AG platform or local agent host starts the matching loop on a
-schedule. Each loop performs its own allowed Linear, GitHub, local filesystem, and
-`~/.linear-loop` state changes after checking the current state.
+This is closer to current loop engineering than traditional prompt engineering. The
+work is not one clever prompt. The work is making state, evidence, memory,
+transitions, conflicts, and scheduled execution form a durable loop.
 
-For setup, start with [INSTALL.zh-CN.md](INSTALL.zh-CN.md).
+![Linear Loop overview](docs/assets/loop-system-overview.svg)
 
-## Shape
+## Start Here
+
+- [Local setup](INSTALL.zh-CN.md) - three-step startup guide.
+- [Copy pack](dist/zh-CN/prompts/) - standalone prompts to paste into schedules.
+- [Operating notes](docs/usage.md) - state, handoff, memory, and exception rules.
+
+Do not paste source prompts from `prompts/` into schedules. User-facing prompts live
+under `dist/zh-CN/prompts/*.standalone.md` and already embed the shared contract,
+local directory conventions, and Loop Final Report shape.
+
+## What It Solves
+
+A single agent can easily mix up what to do now, what it learned before, who may
+change code, and whether a state transition is still valid. This system separates
+those concerns:
+
+- Linear issues hold issue-bound facts, evidence, and execution records.
+- Linear Project Docs hold long-lived experience and project preferences.
+- `~/.linear-loop` holds minimal runtime state, locks, cooldowns, and local
+  repo/worktree cache.
+- Schedules only start the matching loop.
+- Coordinator handles conflicts, unknown states, stale runs, lock problems, and
+  multi-repo coordination.
+
+## Three-Step Setup
+
+1. Initialize Local Loop Space:
+
+   ```sh
+   mkdir -p ~/.linear-loop/state/{issues,locks,cooldowns}
+   mkdir -p ~/.linear-loop/runtime-issues
+   mkdir -p ~/.linear-loop/{repos,worktrees}
+   touch ~/.linear-loop/state/lesson-candidates.jsonl
+   ```
+
+2. Paste standalone prompts from [dist/zh-CN/prompts/](dist/zh-CN/prompts/) into the
+   matching AG platform schedules.
+
+3. Run `initial-loop.standalone.md` manually. It checks the local directory, Linear
+   workflow states, labels, Project `Agent Project Settings`, and Project Docs, then
+   prints the schedules that still need to be created.
+
+See [INSTALL.zh-CN.md](INSTALL.zh-CN.md) for the full setup.
+
+## What Linear Stores
+
+![Linear issue evidence map](docs/assets/linear-issue-evidence.svg)
+
+The issue is the source of truth for issue-bound facts. Discovery writes
+`[Discovery]`; Todo writes `[Todo Brief]`; execution summaries, verification results,
+and blockers stay on the same issue.
+
+![Linear project memory map](docs/assets/linear-project-memory.svg)
+
+Project Docs are the long-term memory layer:
+
+- `Agent Guidance`: general operating lessons and team preferences.
+- `Repo Notes/{repoSlug}`: repo-level test commands, structure, and pitfalls.
+- `Decision Log`: long-lived decisions.
+
+The images above are sanitized explanatory assets. Real Linear screenshots can replace
+the same files under `docs/assets/` without changing the README structure.
+
+## Loop Shape
 
 ```text
-Linear issue
-  -> requirements, Discovery, Todo Brief, execution summary, verification
+Triage
+  -> Backlog
+      -> Discovery writes [Discovery]
+      -> Todo writes [Todo Brief]
+      -> In Progress asks Repo Manager for code lock
+      -> In Review
+      -> Done
 
-Linear Project Docs
-  -> Agent Guidance / Repo Notes / Decision Log
+Canceled / Duplicate
+  -> close or archive with evidence
 
-~/.linear-loop
-  -> state / locks / cooldowns / runtime issues / repos / worktrees
+Memory/Reconcile
+  -> merge repeated lessons into Project Docs
 
-AG schedule
-  -> starts the matching loop
+Coordinator
+  -> resolve conflicts, stale runs, unknown states, lock problems
 ```
 
-Coordinator handles exceptions only: conflicts, stale runs, unknown states, lock
-problems, and multi-repo coordination.
-
-## User-Facing Files
-
-- [INSTALL.zh-CN.md](INSTALL.zh-CN.md) - local installation and startup.
-- [dist/zh-CN/prompts/](dist/zh-CN/prompts/) - standalone prompts to paste into
-  schedules.
-
-Do not paste source prompts from `prompts/` into schedules. They are modular sources
-and do not embed the shared contract.
-
-## Loop Engineering
-
-Prompt engineering usually optimizes one model call. Loop engineering focuses on how
-many calls hand work to each other over time:
-
-- each loop owns one state or service responsibility;
-- Linear issues hold issue-bound facts and execution evidence;
-- Linear Project Docs hold long-lived experience memory;
-- `~/.linear-loop` holds only minimal runtime control state;
-- Coordinator handles conflicts and unknown states instead of routine progression.
+Each state loop scans only the Linear state it owns. It reads Linear, GitHub, the local
+filesystem, and `~/.linear-loop`; re-reads before writing; checks for conflicts; and
+writes only the results it is allowed to apply.
 
 ## Local Loop Space
 
-The default runtime directory is:
+Default runtime directory:
 
 ```text
 ~/.linear-loop/config.yaml
@@ -71,41 +119,9 @@ Local Loop Space stores runtime control state, locks, cooldowns, runtime issues,
 repo/worktree cache. It is not the default store for Discovery reports, Todo briefs,
 or full run JSON history.
 
-## Memory Placement
-
-- Linear issue: issue-bound facts such as `[Discovery]`, `[Todo Brief]`, execution
-  summary, verification, and blockers.
-- Linear Project Docs: long-lived experience memory such as `Agent Guidance`,
-  `Repo Notes/{repoSlug}`, and `Decision Log`.
-- `~/.linear-loop`: cross-session runtime control state such as fingerprint, lock,
-  cooldown, lesson candidates, and runtime issues.
-
-Repository origins, default branches, and verification commands still belong in
-Linear Project `Agent Project Settings`. The local directory does not replace project
+Repository origins, default branches, and verification commands belong in Linear
+Project `Agent Project Settings`. The local directory does not replace project
 settings or a repo registry.
-
-## Maintainer Files
-
-- [prompts/](prompts/) - modular prompt sources.
-- [schemas/loop-result.schema.json](schemas/loop-result.schema.json) - Loop Final
-  Report shape.
-- [scripts/build-standalone-prompts.py](scripts/build-standalone-prompts.py) -
-  generates the copy pack.
-- [scripts/validate-copy-pack.py](scripts/validate-copy-pack.py) - validates the copy
-  pack.
-- [scripts/validate-loop-schema.py](scripts/validate-loop-schema.py) - validates schema
-  and fixtures.
-- [docs/usage.md](docs/usage.md) - operating notes for schedules, handoffs, state, and
-  experience memory.
-
-After changing prompts, run:
-
-```sh
-python3 scripts/build-standalone-prompts.py
-python3 scripts/build-standalone-prompts.py --check
-python3 scripts/validate-copy-pack.py
-python3 scripts/validate-loop-schema.py
-```
 
 ## Write Rule
 
@@ -118,7 +134,29 @@ Each state loop must:
 5. Apply only if state, `updatedAt`, fingerprint, active run, and lease or lock data
    still match.
 6. Escalate to Coordinator when the snapshot is stale.
-7. Return a Loop Final Report for logs and exception rollups, not as a second database.
+7. Return a Loop Final Report for logs and exception rollups, not as a second
+   database.
+
+## Maintainer Files
+
+- [prompts/](prompts/) - modular prompt sources.
+- [schemas/loop-result.schema.json](schemas/loop-result.schema.json) - Loop Final
+  Report shape.
+- [scripts/build-standalone-prompts.py](scripts/build-standalone-prompts.py) -
+  generates the copy pack.
+- [scripts/validate-copy-pack.py](scripts/validate-copy-pack.py) - validates the copy
+  pack.
+- [scripts/validate-loop-schema.py](scripts/validate-loop-schema.py) - validates schema
+  and fixtures.
+
+After changing prompts, run:
+
+```sh
+python3 scripts/build-standalone-prompts.py
+python3 scripts/build-standalone-prompts.py --check
+python3 scripts/validate-copy-pack.py
+python3 scripts/validate-loop-schema.py
+```
 
 ## Do Not
 
