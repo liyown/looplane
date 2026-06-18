@@ -8,8 +8,8 @@ name repositories, read repositories before planning implementation, and tolerat
 manual Linear changes, GitHub/PR automation, unfinished prior runs, and multiple
 local executors. Runtime control state lives under `~/.linear-loop`; issue evidence
 lives on Linear issues; long-lived experience memory lives in Linear Project docs.
-This repository is the source for maintained prompts, examples, validation scripts,
-and generated copy packs.
+This repository keeps the prompt files, operating docs, and examples. The files under
+`prompts/` are the prompts users copy into their agent runtime.
 
 The v1 default optimizes for first use: few visible statuses, few labels, independent
 state loops that write their own results, and one Coordinator loop for exceptions.
@@ -420,15 +420,17 @@ Issue memory example:
   "lastState": "Backlog",
   "lastLoop": "backlog",
   "fingerprint": "sha256...",
-  "lastResult": "blocked",
-  "blocker": "needs-repo",
+  "cooldown": {
+    "reason": "needs-repo",
+    "nextEligibleAt": "2026-06-18T10:00:00+08:00"
+  },
   "target": {
     "kind": "code",
     "status": "inferred",
     "confidence": "low"
   },
   "activeRuns": {},
-  "nextEligibleAt": "2026-06-18T10:00:00+08:00"
+  "handoffMarkers": []
 }
 ```
 
@@ -436,7 +438,7 @@ Runtime issues are append-only records for system problems found while loops run
 are not product issue requirements. Each loop appends one JSON object per line to
 `~/.linear-loop/runtime-issues/YYYY-MM.jsonl` with timestamp, source, severity,
 summary, detail, suggested change, and optional issue/run evidence. Coordinator or
-Memory/Reconcile uses repeated records as iteration input for prompts, loop contract,
+Memory/Reconcile uses repeated records as iteration input for prompts, loop rules,
 loop runtime behavior, Linear setup, or repo access.
 
 Fingerprint inputs:
@@ -699,13 +701,12 @@ fingerprint means supersede older runs; terminal state always wins.
 Add `security-sensitive`, require `Mode/Human` or `Mode/Hybrid`, and block Done until
 human review is recorded.
 
-## 15. Worker Prompt Set
+## 15. Prompt Set
 
-`prompts/` is the modular source layer. Users paste generated standalone prompts from
-`dist/zh-CN/prompts/` into schedules.
+`prompts/` is the runtime prompt layer. Initial setup is run manually once. Scheduled
+state and service loops are pasted into schedules from these files.
 
 ```text
-prompts/_shared-contract.md
 prompts/initial-setup.md
 prompts/coordinator-loop.md
 prompts/repo-manager.md
@@ -738,5 +739,5 @@ The v1 system is ready when:
 - Coordinator handles conflicts, stale runs, and exceptional routing.
 - Unfinished prior runs and duplicate executors have deterministic handling.
 - Manual edits and GitHub automation have deterministic reconciliation behavior.
-- Examples and validation support the v1 default profile without requiring a
-  machine-readable run result.
+- Examples explain the v1 default profile without requiring a machine-readable run
+  result.

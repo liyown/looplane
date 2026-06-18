@@ -23,8 +23,9 @@ Create or verify the local runtime directory before configuring schedules:
 ~/.linear-loop/worktrees/
 ```
 
-`~/.linear-loop` is the runtime space. This prompt repository is only the source for
-maintained prompts, examples, validation scripts, and generated copy packs.
+`~/.linear-loop` is the runtime space. This repository keeps the prompt files,
+examples, and operating docs. The files under `prompts/` are the prompts users copy
+into their agent runtime.
 
 If `config.yaml` is missing, create a minimal file with:
 
@@ -34,8 +35,6 @@ agent:
   loopSpace: ~/.linear-loop
   linear:
     workspace: null
-  schedules:
-    copyPack: dist/zh-CN/prompts
 ```
 
 If the local agent runtime or future schedules cannot access the user's local home
@@ -134,12 +133,41 @@ Create or verify:
 - `~/.linear-loop/repos/`
 - `~/.linear-loop/worktrees/`
 
-If the local filesystem cannot be used, return `requiresHuman: true` with the exact
-storage problem. The default system assumes local execution.
+If the local filesystem cannot be used, write a Markdown note with
+`Requires human: true` and the exact storage problem. The default system assumes
+local execution.
 
 Do not create default local directories for full Discovery reports, Todo briefs, or
 run-history JSON. Discovery and Todo evidence belongs on the Linear issue. Long-term
 lessons belong in Linear Project docs.
+
+## Setup Output
+
+Apply allowed Linear and local filesystem changes directly. Do not return JSON as a
+control surface. If setup cannot complete through available tools, write a concise
+Markdown result with exact manual steps and `Requires human: true`.
+
+## Runtime Issue Logging
+
+If setup finds a problem with the loop system itself, append one JSON object per line
+to `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`. Use this for prompt ambiguity,
+local storage gaps, Linear setup gaps, repo access problems, missing tools, and
+unexpected states. Do not use it for normal product requirements.
+
+Use this shape:
+
+```json
+{
+  "timestamp": "2026-06-18T10:00:00+08:00",
+  "source": "initial-setup",
+  "category": "prompt_gap | loop_rule_gap | loop_runtime_gap | linear_setup | repo_access | tooling | unexpected_state | other",
+  "severity": "low | medium | high | critical",
+  "summary": "",
+  "detail": "",
+  "suggestedChange": "",
+  "evidence": []
+}
+```
 
 ## Healthcheck
 
@@ -154,7 +182,7 @@ Create a no-code healthcheck issue that proves:
 
 End your response with a short section named `Start the system`. Include:
 
-1. Which visible state loops to schedule and which standalone prompt each one uses.
+1. Which visible state loops to schedule and which prompt file each one uses.
 2. Which service loops to configure for handoffs.
 3. The compare-and-set write rule each loop must enforce before it writes to Linear.
 4. A reminder that code-backed issues need `Agent Project Settings` repo origins and a
@@ -163,22 +191,22 @@ End your response with a short section named `Start the system`. Include:
    `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`.
 6. Any manual Linear UI steps that the API/tooling could not complete.
 
-Use these standalone prompt names in the instructions:
+Use these prompt file names in the instructions:
 
 ```text
-Triage       -> dist/zh-CN/prompts/triage-loop.standalone.md
-Backlog      -> dist/zh-CN/prompts/backlog-loop.standalone.md
-Todo         -> dist/zh-CN/prompts/todo-loop.standalone.md
-In Progress  -> dist/zh-CN/prompts/in-progress-loop.standalone.md
-In Review    -> dist/zh-CN/prompts/in-review-loop.standalone.md
-Done         -> dist/zh-CN/prompts/done-loop.standalone.md
-Canceled     -> dist/zh-CN/prompts/canceled-loop.standalone.md
-Duplicate    -> dist/zh-CN/prompts/duplicate-loop.standalone.md
-Discovery        -> dist/zh-CN/prompts/discovery-loop.standalone.md
-Repo Manager     -> dist/zh-CN/prompts/repo-manager.standalone.md
-Memory/Reconcile -> dist/zh-CN/prompts/memory-reconcile-loop.standalone.md
-Coordinator      -> dist/zh-CN/prompts/coordinator-loop.standalone.md
+Triage       -> prompts/triage-loop.md
+Backlog      -> prompts/backlog-loop.md
+Todo         -> prompts/todo-loop.md
+In Progress  -> prompts/in-progress-loop.md
+In Review    -> prompts/in-review-loop.md
+Done         -> prompts/done-loop.md
+Canceled     -> prompts/canceled-loop.md
+Duplicate    -> prompts/duplicate-loop.md
+Discovery        -> prompts/discovery-loop.md
+Repo Manager     -> prompts/repo-manager.md
+Memory/Reconcile -> prompts/memory-reconcile-loop.md
+Coordinator      -> prompts/coordinator-loop.md
 ```
 
-If Linear workflow configuration requires manual UI work, return `requiresHuman: true`
-and list the exact manual steps.
+If Linear workflow configuration requires manual UI work, include
+`Requires human: true` and list the exact manual steps.

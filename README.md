@@ -2,9 +2,8 @@
 
 Chinese docs: [README.zh-CN.md](README.zh-CN.md)
 
-A Linear-centered loop system for local agents. Looplane maintains the loop contracts,
-standalone prompts, examples, and validation scripts; Linear remains the operating
-surface.
+A Linear-centered loop system for local agents. Looplane keeps the prompt files,
+operating docs, and examples; Linear remains the operating surface.
 
 This is closer to current loop engineering than traditional prompt engineering. The
 work is not one clever prompt. The work is making state, evidence, memory,
@@ -15,13 +14,12 @@ transitions, conflicts, and scheduled execution form a durable loop.
 ## Start Here
 
 - [Local setup](INSTALL.zh-CN.md) - three-step startup guide.
-- [Copy pack](dist/zh-CN/prompts/) - one-time setup prompt and scheduled loop prompts.
+- [Prompts](prompts/) - one-time setup prompt and scheduled loop prompts.
 - [Operating notes](docs/usage.md) - state, handoff, memory, and exception rules.
 
-Do not paste source prompts from `prompts/` into schedules. User-facing prompts live
-under `dist/zh-CN/prompts/*.standalone.md` and already embed the shared contract,
-local directory conventions, Markdown run note convention, and runtime issue log
-format.
+The files under `prompts/` are the prompts to copy into the agent runtime. Each loop
+prompt includes its role, local directory conventions, handoff rules, Markdown run
+note convention, and runtime issue log format.
 
 ## What It Solves
 
@@ -48,11 +46,11 @@ those concerns:
    touch ~/.linear-loop/state/lesson-candidates.jsonl
    ```
 
-2. Put standalone prompts from [dist/zh-CN/prompts/](dist/zh-CN/prompts/) into the
-   matching runtime entry: run `initial-setup.standalone.md` manually once, then paste
-   the other loop prompts into AG platform schedules.
+2. Put prompt files from [prompts/](prompts/) into the matching runtime entry: run
+   `prompts/initial-setup.md` manually once, then paste the other loop prompts into
+   AG platform schedules.
 
-3. Run `initial-setup.standalone.md` manually. It checks the local directory, Linear
+3. Run `prompts/initial-setup.md` manually. It checks the local directory, Linear
    workflow states, labels, Project `Agent Project Settings`, and Project Docs, then
    prints the schedules that still need to be created.
 
@@ -139,21 +137,15 @@ Each state loop must:
 7. Write durable facts to Linear, GitHub, Project Docs, or `~/.linear-loop`; if a
    final summary is useful, make it a short Markdown `Run Note`.
 
-## Maintainer Files
+## Prompt Files
 
-- [prompts/](prompts/) - modular prompt sources.
-- [scripts/build-standalone-prompts.py](scripts/build-standalone-prompts.py) -
-  generates the copy pack.
-- [scripts/validate-copy-pack.py](scripts/validate-copy-pack.py) - validates the copy
-  pack.
+- [prompts/initial-setup.md](prompts/initial-setup.md) runs once to prepare Linear,
+  Project Docs, and `~/.linear-loop`.
+- The `*-loop.md` files are scheduled state or service loops.
+- [prompts/repo-manager.md](prompts/repo-manager.md) owns clone, fetch, worktree, and
+  repo lock operations.
 
-After changing prompts, run:
-
-```sh
-python3 scripts/build-standalone-prompts.py
-python3 scripts/build-standalone-prompts.py --check
-python3 scripts/validate-copy-pack.py
-```
+Edit the prompt files directly. There is no generation step.
 
 ## Do Not
 

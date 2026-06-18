@@ -20,40 +20,38 @@ agent:
   loopSpace: ~/.linear-loop
   linear:
     workspace: null
-  schedules:
-    copyPack: dist/zh-CN/prompts
 ```
 
 如果你的 schedule 运行在云端容器，不能访问这个目录，那就不是默认安装方式。先不要启动
 loop。
 
-## 2. 复制 standalone prompts 到运行入口
+## 2. 复制 prompts 到运行入口
 
-使用 [dist/zh-CN/prompts/](dist/zh-CN/prompts/) 里的文件。每个文件都是自包含
-prompt，已经嵌入共享契约、Markdown run note 约定、runtime issue 日志格式和
+使用 [prompts/](prompts/) 里的文件。每个 loop prompt 都是自包含 prompt，已经包含
+自己的职责、loop 规则、Markdown run note 约定、runtime issue 日志格式和
 `~/.linear-loop` 目录规则。
 
 | 运行方式 | 粘贴的 prompt |
 | --- | --- |
-| Initial setup，一次性手动运行 | `dist/zh-CN/prompts/initial-setup.standalone.md` |
-| Triage | `dist/zh-CN/prompts/triage-loop.standalone.md` |
-| Backlog | `dist/zh-CN/prompts/backlog-loop.standalone.md` |
-| Todo | `dist/zh-CN/prompts/todo-loop.standalone.md` |
-| In Progress | `dist/zh-CN/prompts/in-progress-loop.standalone.md` |
-| In Review | `dist/zh-CN/prompts/in-review-loop.standalone.md` |
-| Done | `dist/zh-CN/prompts/done-loop.standalone.md` |
-| Canceled | `dist/zh-CN/prompts/canceled-loop.standalone.md` |
-| Duplicate | `dist/zh-CN/prompts/duplicate-loop.standalone.md` |
-| Discovery，内部 handoff | `dist/zh-CN/prompts/discovery-loop.standalone.md` |
-| Repo Manager，内部 handoff | `dist/zh-CN/prompts/repo-manager.standalone.md` |
-| Memory/Reconcile，定期或内部 handoff | `dist/zh-CN/prompts/memory-reconcile-loop.standalone.md` |
-| Coordinator，异常处理 | `dist/zh-CN/prompts/coordinator-loop.standalone.md` |
+| Initial setup，一次性手动运行 | `prompts/initial-setup.md` |
+| Triage | `prompts/triage-loop.md` |
+| Backlog | `prompts/backlog-loop.md` |
+| Todo | `prompts/todo-loop.md` |
+| In Progress | `prompts/in-progress-loop.md` |
+| In Review | `prompts/in-review-loop.md` |
+| Done | `prompts/done-loop.md` |
+| Canceled | `prompts/canceled-loop.md` |
+| Duplicate | `prompts/duplicate-loop.md` |
+| Discovery，内部 handoff | `prompts/discovery-loop.md` |
+| Repo Manager，内部 handoff | `prompts/repo-manager.md` |
+| Memory/Reconcile，定期或内部 handoff | `prompts/memory-reconcile-loop.md` |
+| Coordinator，异常处理 | `prompts/coordinator-loop.md` |
 
 状态 loop 按 Linear 状态分开跑。不要让每个 schedule 扫所有 issue。
 
 ## 3. 运行 Initial setup prompt
 
-先手动运行 `initial-setup.standalone.md`。它负责检查或创建：
+先手动运行 `prompts/initial-setup.md`。它负责检查或创建：
 
 - Linear workflow states。
 - labels 和控制标签。
@@ -62,8 +60,8 @@ prompt，已经嵌入共享契约、Markdown run note 约定、runtime issue 日
 - `~/.linear-loop` 最小运行目录。
 - no-code healthcheck issue。
 
-如果 Linear API 不能完成某项设置，Initial setup 必须返回明确的人工步骤，并设置
-`requiresHuman: true`。
+如果 Linear API 不能完成某项设置，Initial setup 必须返回明确的人工步骤，并在
+Markdown 结果里标记 `Requires human: true`。
 
 ## 记忆约定
 
@@ -85,12 +83,6 @@ prompt，已经嵌入共享契约、Markdown run note 约定、runtime issue 日
 - 运行时发现系统问题时，直接追加 runtime issue record 到
   `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`。
 
-## 维护复制包
+## 修改提示词
 
-改了 `prompts/` 或共享契约后，重新生成：
-
-```sh
-python3 scripts/build-standalone-prompts.py
-python3 scripts/build-standalone-prompts.py --check
-python3 scripts/validate-copy-pack.py
-```
+直接修改 [prompts/](prompts/) 里的文件，不需要额外工具。

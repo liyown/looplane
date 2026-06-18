@@ -8,19 +8,19 @@ GitHub, filesystem, and `~/.linear-loop` operations after checking current state
 
 | Role | Runs On | Prompt |
 | --- | --- | --- |
-| Initial setup | one manual run | `dist/zh-CN/prompts/initial-setup.standalone.md` |
-| Triage | `Triage` issues | `dist/zh-CN/prompts/triage-loop.standalone.md` |
-| Backlog | `Backlog` issues | `dist/zh-CN/prompts/backlog-loop.standalone.md` |
-| Todo | `Todo` issues | `dist/zh-CN/prompts/todo-loop.standalone.md` |
-| In Progress | `In Progress` issues | `dist/zh-CN/prompts/in-progress-loop.standalone.md` |
-| In Review | `In Review` issues | `dist/zh-CN/prompts/in-review-loop.standalone.md` |
-| Done | `Done` issues | `dist/zh-CN/prompts/done-loop.standalone.md` |
-| Canceled | `Canceled` issues | `dist/zh-CN/prompts/canceled-loop.standalone.md` |
-| Duplicate | `Duplicate` issues | `dist/zh-CN/prompts/duplicate-loop.standalone.md` |
-| Discovery | internal handoff | `dist/zh-CN/prompts/discovery-loop.standalone.md` |
-| Repo Manager | internal handoff | `dist/zh-CN/prompts/repo-manager.standalone.md` |
-| Memory/Reconcile | schedule or internal handoff | `dist/zh-CN/prompts/memory-reconcile-loop.standalone.md` |
-| Coordinator | exception handling | `dist/zh-CN/prompts/coordinator-loop.standalone.md` |
+| Initial setup | one manual run | `prompts/initial-setup.md` |
+| Triage | `Triage` issues | `prompts/triage-loop.md` |
+| Backlog | `Backlog` issues | `prompts/backlog-loop.md` |
+| Todo | `Todo` issues | `prompts/todo-loop.md` |
+| In Progress | `In Progress` issues | `prompts/in-progress-loop.md` |
+| In Review | `In Review` issues | `prompts/in-review-loop.md` |
+| Done | `Done` issues | `prompts/done-loop.md` |
+| Canceled | `Canceled` issues | `prompts/canceled-loop.md` |
+| Duplicate | `Duplicate` issues | `prompts/duplicate-loop.md` |
+| Discovery | internal handoff | `prompts/discovery-loop.md` |
+| Repo Manager | internal handoff | `prompts/repo-manager.md` |
+| Memory/Reconcile | schedule or internal handoff | `prompts/memory-reconcile-loop.md` |
+| Coordinator | exception handling | `prompts/coordinator-loop.md` |
 
 State loops scan only their owned state. Service loops do not own normal visible
 states.
@@ -182,7 +182,7 @@ The run note is for humans. Later loops must read Linear, GitHub, Project Docs, 
 Loops append runtime issue records for problems in the loop system itself:
 
 - prompt instructions were ambiguous or missing;
-- loop contract could not express a needed action;
+- common loop rules could not express a needed action;
 - a loop did not enforce a required write rule;
 - Linear setup was missing or inconsistent;
 - Repo Manager lacked access to a declared origin;
@@ -193,24 +193,12 @@ Loops append runtime issue records for problems in the loop system itself:
 
 The loop appends one JSON object per line to
 `~/.linear-loop/runtime-issues/YYYY-MM.jsonl`. Memory/Reconcile groups repeated
-records and turns them into prompt, loop contract, loop runtime, or Linear setup
-changes.
+records and turns them into prompt, loop rules, loop runtime, or Linear setup changes.
 
-## Maintaining The Copy Pack
+## Maintaining Prompts
 
-`prompts/` is source. `dist/zh-CN/prompts/` is what users paste into runtime entries:
-Initial setup is run manually once, and recurring loops are pasted into schedules.
+`prompts/` is what users paste into runtime entries: Initial setup is run manually
+once, and recurring loops are pasted into schedules.
 
-After source changes, run:
-
-```sh
-python3 scripts/build-standalone-prompts.py
-python3 scripts/build-standalone-prompts.py --check
-python3 scripts/validate-copy-pack.py
-```
-
-When adding a loop, update:
-
-- the source prompt in `prompts/`
-- `scripts/build-standalone-prompts.py`
-- `scripts/validate-copy-pack.py`
+When adding a loop, add the prompt file under `prompts/` and document where it fits
+in the loop flow.

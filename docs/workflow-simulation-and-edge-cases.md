@@ -1,6 +1,6 @@
 # Workflow Simulation and Edge-Case Review v1
 
-This document validates the Linear agent team from the user's perspective. The goal is
+This document examines the Linear agent team from the user's perspective. The goal is
 to keep Linear easy to understand while preserving enough internal rigor for reliable
 agent execution, including overlapping scheduler cycles and duplicate executors.
 

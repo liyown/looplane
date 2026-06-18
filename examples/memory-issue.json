@@ -5,8 +5,10 @@
   "lastLoop": "backlog",
   "lastProcessedAt": "2026-06-17T18:30:00+08:00",
   "fingerprint": "sha256:replace-with-computed-fingerprint",
-  "lastResult": "blocked",
-  "blocker": "needs-repo",
+  "cooldown": {
+    "reason": "needs-repo",
+    "nextEligibleAt": "2026-06-18T10:00:00+08:00"
+  },
   "attempts": {
     "triage": 1,
     "backlog": 1,
@@ -15,7 +17,6 @@
     "inProgress": 0,
     "inReview": 0
   },
-  "nextEligibleAt": "2026-06-18T10:00:00+08:00",
   "project": "Product A",
   "target": {
     "kind": "code",
@@ -29,32 +30,16 @@
       }
     ]
   },
-  "discoveryReport": null,
+  "linearEvidence": {
+    "latestDiscoveryHash": null,
+    "latestTodoBriefHash": null
+  },
   "branch": null,
   "worktree": null,
   "baseline": null,
-  "verification": [],
   "activeRuns": {},
-  "runHistory": [
-    {
-      "runId": "run-20260617-backlog-abc123",
-      "runKey": "ABC-123:backlog:sha256:replace-with-computed-fingerprint",
-      "loop": "backlog",
-      "workerId": "local-agent-1",
-      "fingerprint": "sha256:replace-with-computed-fingerprint",
-      "status": "applied",
-      "startedAt": "2026-06-17T18:29:00+08:00",
-      "finishedAt": "2026-06-17T18:30:00+08:00"
-    }
-  ],
+  "handoffMarkers": [],
   "openRisks": [
     "Repository target is ambiguous."
-  ],
-  "decisionLog": [
-    {
-      "at": "2026-06-17T18:30:00+08:00",
-      "by": "backlog-loop",
-      "decision": "Blocked issue until product-a-app vs product-a-api is resolved."
-    }
   ]
 }
