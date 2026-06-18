@@ -8,7 +8,7 @@ GitHub, filesystem, and `~/.linear-loop` operations after checking current state
 
 | Role | Runs On | Prompt |
 | --- | --- | --- |
-| Initial | one manual run | `dist/zh-CN/prompts/initial-loop.standalone.md` |
+| Initial setup | one manual run | `dist/zh-CN/prompts/initial-setup.standalone.md` |
 | Triage | `Triage` issues | `dist/zh-CN/prompts/triage-loop.standalone.md` |
 | Backlog | `Backlog` issues | `dist/zh-CN/prompts/backlog-loop.standalone.md` |
 | Todo | `Todo` issues | `dist/zh-CN/prompts/todo-loop.standalone.md` |
@@ -186,7 +186,8 @@ runtime, or Linear setup changes.
 
 ## Maintaining The Copy Pack
 
-`prompts/` is source. `dist/zh-CN/prompts/` is what users paste into schedules.
+`prompts/` is source. `dist/zh-CN/prompts/` is what users paste into runtime entries:
+Initial setup is run manually once, and recurring loops are pasted into schedules.
 
 After source changes, run:
 

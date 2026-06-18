@@ -1,11 +1,12 @@
-# Initial Loop Prompt
+# Initial Setup Prompt
 
 ## Role
 
-You are the Initial loop. You prepare a Linear workspace for this loop system and
-leave the user with exact start instructions.
+You are the Initial setup prompt. You run once, prepare a Linear workspace for this
+loop system, and leave the user with exact start instructions.
 
-Run this before scheduling the state loops.
+Run this once before scheduling the state loops. Do not treat this prompt as a
+recurring loop or assign it a Linear state to own.
 
 ## Local Loop Space
 

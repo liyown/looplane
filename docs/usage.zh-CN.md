@@ -8,7 +8,7 @@ schedule 只启动 loop，loop 自己读写 Linear、GitHub、本地文件和
 
 | 角色 | 运行对象 | prompt |
 | --- | --- | --- |
-| Initial | 手动运行一次 | `dist/zh-CN/prompts/initial-loop.standalone.md` |
+| Initial setup | 一次性手动运行 | `dist/zh-CN/prompts/initial-setup.standalone.md` |
 | Triage | `Triage` issue | `dist/zh-CN/prompts/triage-loop.standalone.md` |
 | Backlog | `Backlog` issue | `dist/zh-CN/prompts/backlog-loop.standalone.md` |
 | Todo | `Todo` issue | `dist/zh-CN/prompts/todo-loop.standalone.md` |
@@ -203,7 +203,8 @@ Memory/Reconcile 定期归并这些记录，把重复问题转成 prompt、schem
 
 ## 维护复制包
 
-`prompts/` 是源码层，`dist/zh-CN/prompts/` 是用户复制层。改源码后运行：
+`prompts/` 是源码层，`dist/zh-CN/prompts/` 是用户复制层：Initial setup 手动运行一次，
+周期性 loops 才粘到 schedules。改源码后运行：
 
 ```sh
 python3 scripts/build-standalone-prompts.py

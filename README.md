@@ -15,7 +15,7 @@ transitions, conflicts, and scheduled execution form a durable loop.
 ## Start Here
 
 - [Local setup](INSTALL.zh-CN.md) - three-step startup guide.
-- [Copy pack](dist/zh-CN/prompts/) - standalone prompts to paste into schedules.
+- [Copy pack](dist/zh-CN/prompts/) - one-time setup prompt and scheduled loop prompts.
 - [Operating notes](docs/usage.md) - state, handoff, memory, and exception rules.
 
 Do not paste source prompts from `prompts/` into schedules. User-facing prompts live
@@ -47,10 +47,11 @@ those concerns:
    touch ~/.linear-loop/state/lesson-candidates.jsonl
    ```
 
-2. Paste standalone prompts from [dist/zh-CN/prompts/](dist/zh-CN/prompts/) into the
-   matching AG platform schedules.
+2. Put standalone prompts from [dist/zh-CN/prompts/](dist/zh-CN/prompts/) into the
+   matching runtime entry: run `initial-setup.standalone.md` manually once, then paste
+   the other loop prompts into AG platform schedules.
 
-3. Run `initial-loop.standalone.md` manually. It checks the local directory, Linear
+3. Run `initial-setup.standalone.md` manually. It checks the local directory, Linear
    workflow states, labels, Project `Agent Project Settings`, and Project Docs, then
    prints the schedules that still need to be created.
 

@@ -27,14 +27,14 @@ agent:
 如果你的 schedule 运行在云端容器，不能访问这个目录，那就不是默认安装方式。先不要启动
 loop。
 
-## 2. 复制 standalone prompts 到 schedules
+## 2. 复制 standalone prompts 到运行入口
 
 使用 [dist/zh-CN/prompts/](dist/zh-CN/prompts/) 里的文件。每个文件都是自包含
 prompt，已经嵌入共享契约、Loop Final Report 结构和 `~/.linear-loop` 目录规则。
 
-| schedule | 粘贴的 prompt |
+| 运行方式 | 粘贴的 prompt |
 | --- | --- |
-| Initial，手动运行一次 | `dist/zh-CN/prompts/initial-loop.standalone.md` |
+| Initial setup，一次性手动运行 | `dist/zh-CN/prompts/initial-setup.standalone.md` |
 | Triage | `dist/zh-CN/prompts/triage-loop.standalone.md` |
 | Backlog | `dist/zh-CN/prompts/backlog-loop.standalone.md` |
 | Todo | `dist/zh-CN/prompts/todo-loop.standalone.md` |
@@ -50,9 +50,9 @@ prompt，已经嵌入共享契约、Loop Final Report 结构和 `~/.linear-loop`
 
 状态 loop 按 Linear 状态分开跑。不要让每个 schedule 扫所有 issue。
 
-## 3. 运行 Initial prompt
+## 3. 运行 Initial setup prompt
 
-先手动运行 `initial-loop.standalone.md`。它负责检查或创建：
+先手动运行 `initial-setup.standalone.md`。它负责检查或创建：
 
 - Linear workflow states。
 - labels 和控制标签。
@@ -61,7 +61,7 @@ prompt，已经嵌入共享契约、Loop Final Report 结构和 `~/.linear-loop`
 - `~/.linear-loop` 最小运行目录。
 - no-code healthcheck issue。
 
-如果 Linear API 不能完成某项设置，Initial 必须返回明确的人工步骤，并设置
+如果 Linear API 不能完成某项设置，Initial setup 必须返回明确的人工步骤，并设置
 `requiresHuman: true`。
 
 ## 记忆约定

@@ -10,7 +10,7 @@ DIST_PROMPT_DIR = ROOT / "dist" / "zh-CN" / "prompts"
 SHARED_CONTRACT = PROMPT_DIR / "_shared-contract.md"
 
 PROMPT_FILES = [
-    "initial-loop.md",
+    "initial-setup.md",
     "triage-loop.md",
     "backlog-loop.md",
     "discovery-loop.md",
@@ -46,17 +46,24 @@ def sanitize_source(text):
 def render_prompt(path, shared_contract):
     source = sanitize_source(path.read_text(encoding="utf-8"))
     title = title_for(path)
+    if path.name == "initial-setup.md":
+        usage = """Run this whole file manually once in your local agent. Do not put it on a
+recurring schedule."""
+        runtime_note = "- This initial setup prompt runs once and does not own a recurring Linear state.\n"
+    else:
+        usage = "Paste this whole file into the matching local AG schedule or worker."
+        runtime_note = ""
     return f"""# {title} Standalone Prompt
 
-Paste this whole file into the matching local AG schedule or worker.
+{usage}
 
 This prompt is self-contained. It embeds the shared loop contract, final report shape,
 and local Loop Space rules. Do not ask the user to open files from this repository
-while the schedule is running.
+while the prompt is running.
 
 ## Runtime Assumptions
 
-- The worker runs locally and can access `~/.linear-loop`.
+{runtime_note}- The prompt or worker runs locally and can access `~/.linear-loop`.
 - Linear remains the visible state and collaboration surface.
 - `~/.linear-loop` stores minimal runtime state, locks, cooldowns, repo cache,
   worktrees, lesson candidates, and runtime issue logs.

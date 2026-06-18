@@ -122,9 +122,9 @@ Optional advanced mode:
 
 ## 5. Components
 
-### 5.1 Initial Loop
+### 5.1 Initial Setup Prompt
 
-Initializes Linear and local system state before the scheduled loops start:
+Runs once to initialize Linear and local system state before the scheduled loops start:
 
 - Confirms the default workflow and optionally adds In Review.
 - Enables or documents Triage setup.
@@ -136,8 +136,9 @@ Initializes Linear and local system state before the scheduled loops start:
 - Returns user-facing start instructions for schedules, service handoffs, and manual
   setup gaps.
 
-If API/tooling cannot create statuses or Triage settings, Initial returns a manual
-checklist instead of claiming success.
+Initial setup does not own a recurring Linear state and must not be configured as a
+scheduled loop. If API/tooling cannot create statuses or Triage settings, it returns
+a manual checklist instead of claiming success.
 
 ### 5.2 State Loops
 
@@ -736,7 +737,7 @@ human review is recorded.
 
 ```text
 prompts/_shared-contract.md
-prompts/initial-loop.md
+prompts/initial-setup.md
 prompts/coordinator-loop.md
 prompts/repo-manager.md
 prompts/memory-reconcile-loop.md

@@ -1,12 +1,13 @@
 # 复制包
 
-这个目录是给用户复制到 AG 平台 schedules 的材料。
+这个目录是给用户复制到 AG 平台运行入口的材料。Initial setup 是一次性手动运行；
+其它状态 loop 才放进 schedules。
 
 只复制 `prompts/*.standalone.md`。不要复制仓库源码里的 `prompts/*.md`。
 
-| schedule | prompt |
+| 运行方式 | prompt |
 | --- | --- |
-| Initial | `prompts/initial-loop.standalone.md` |
+| Initial setup | `prompts/initial-setup.standalone.md` |
 | Triage | `prompts/triage-loop.standalone.md` |
 | Backlog | `prompts/backlog-loop.standalone.md` |
 | Todo | `prompts/todo-loop.standalone.md` |

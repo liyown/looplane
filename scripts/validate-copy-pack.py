@@ -6,7 +6,7 @@ ROOT = Path(__file__).resolve().parents[1]
 DIST_PROMPT_DIR = ROOT / "dist" / "zh-CN" / "prompts"
 
 EXPECTED_PROMPTS = {
-    "initial-loop.standalone.md",
+    "initial-setup.standalone.md",
     "triage-loop.standalone.md",
     "backlog-loop.standalone.md",
     "discovery-loop.standalone.md",
@@ -33,10 +33,13 @@ FORBIDDEN_FRAGMENTS = [
     "~/.linear-loop/memory/",
     "memory/discovery",
     "memory/runs",
+    "initial-loop",
+    "Initial loop",
+    "Initial Loop",
 ]
 
 SPOT_CHECKS = [
-    "initial-loop.standalone.md",
+    "initial-setup.standalone.md",
     "triage-loop.standalone.md",
     "todo-loop.standalone.md",
     "repo-manager.standalone.md",
