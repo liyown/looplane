@@ -2,12 +2,14 @@
 
 Chinese docs: [README.zh-CN.md](README.zh-CN.md)
 
-This repository maintains a Linear-based loop system for local agents.
+This repository maintains a Linear-based loop system for local agents. It is closer
+to current loop engineering than traditional prompt engineering: the core work is not
+writing one good prompt, but organizing state, evidence, memory, transitions,
+conflicts, and scheduled execution into a durable operating loop.
 
-The default model is runnerless: an AG platform or local agent host only starts the
-scheduled prompt. Each loop performs its own allowed Linear, GitHub, local filesystem,
-and `~/.linear-loop` state changes. There is no separate business runner that consumes
-JSON commands.
+The default model: an AG platform or local agent host starts the matching loop on a
+schedule. Each loop performs its own allowed Linear, GitHub, local filesystem, and
+`~/.linear-loop` state changes after checking the current state.
 
 For setup, start with [INSTALL.zh-CN.md](INSTALL.zh-CN.md).
 
@@ -38,6 +40,17 @@ problems, and multi-repo coordination.
 
 Do not paste source prompts from `prompts/` into schedules. They are modular sources
 and do not embed the shared contract.
+
+## Loop Engineering
+
+Prompt engineering usually optimizes one model call. Loop engineering focuses on how
+many calls hand work to each other over time:
+
+- each loop owns one state or service responsibility;
+- Linear issues hold issue-bound facts and execution evidence;
+- Linear Project Docs hold long-lived experience memory;
+- `~/.linear-loop` holds only minimal runtime control state;
+- Coordinator handles conflicts and unknown states instead of routine progression.
 
 ## Local Loop Space
 

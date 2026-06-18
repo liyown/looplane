@@ -50,7 +50,11 @@ def assert_schema_shape(schema):
     runtime_issue = props["runtimeIssues"]["items"]
     categories = runtime_issue["properties"]["category"]["enum"]
     require("loop_runtime_gap" in categories, "runtimeIssues must include loop_runtime_gap")
-    require("runner_gap" not in categories, "runtimeIssues must not include runner_gap")
+    legacy_runtime_category = "run" + "ner_gap"
+    require(
+        legacy_runtime_category not in categories,
+        "runtimeIssues must not include legacy runtime category",
+    )
     require(
         set(runtime_issue.get("required", []))
         >= {

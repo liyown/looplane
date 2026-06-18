@@ -1,10 +1,11 @@
 # Linear Loop System
 
-这是一套把 Linear issue 交给本地 agent loop 处理的工作流。
+这是一套把 Linear issue 交给本地 agent loop 处理的工作流。它更接近最近很火的
+loop 工程，而不是传统 prompt 工程：重点不是写一段好 prompt，而是把状态、证据、
+记忆、迁移、冲突处理和周期性执行组织成可持续运转的闭环。
 
-默认模型是 runnerless：AG 平台或本地 agent 平台只负责按 schedule 启动 prompt；
-每个 loop 自己读写 Linear、GitHub、本地文件和 `~/.linear-loop`。没有独立业务
-runner 去消费 JSON。
+默认模型：AG 平台或本地 agent 平台按 schedule 启动对应 loop；每个 loop 自己读写
+Linear、GitHub、本地文件和 `~/.linear-loop`，并在写入前完成自己的状态检查。
 
 先看 [INSTALL.zh-CN.md](INSTALL.zh-CN.md)。
 
@@ -36,6 +37,16 @@ multi-repo 协调。
   prompts。
 
 不要把 `prompts/` 下的源码 prompt 直接粘到 schedule。源码 prompt 缺少嵌入式共享契约。
+
+## 和 prompt 工程的区别
+
+prompt 工程通常关注单次调用怎么写得更好。loop 工程关注的是多次调用之间如何稳定接力：
+
+- 每个 loop 只处理自己负责的状态或服务职责。
+- Linear issue 承载业务事实和执行证据。
+- Linear Project Docs 承载长期经验。
+- `~/.linear-loop` 只保存最小运行控制状态。
+- Coordinator 只处理冲突和未知状态，不接管日常推进。
 
 ## 本地 Loop Space
 

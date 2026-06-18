@@ -1,7 +1,7 @@
 # 本地安装
 
 这套系统默认跑在本地。AG 平台里的 schedule 只负责启动 loop；loop 自己操作
-Linear、GitHub、本地文件和 `~/.linear-loop`。不需要，也没有独立业务 runner。
+Linear、GitHub、本地文件和 `~/.linear-loop`，并在写入前完成自己的状态检查。
 
 ## 1. 初始化本地 Loop Space
 

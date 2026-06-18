@@ -1,8 +1,8 @@
 # Usage
 
 This document complements [INSTALL.zh-CN.md](../INSTALL.zh-CN.md). The default model
-is runnerless: schedules only start loops. Each loop performs its own allowed Linear,
-GitHub, filesystem, and `~/.linear-loop` operations.
+is loop-first: schedules start loops, and each loop performs its own allowed Linear,
+GitHub, filesystem, and `~/.linear-loop` operations after checking current state.
 
 ## Roles
 
@@ -80,8 +80,7 @@ and lease or lock id when present.
 
 ## Handoffs
 
-Use `requestedWorker` to summarize that this loop marked or created follow-up work. It
-is not a command for a separate runner:
+Use `requestedWorker` to summarize that this loop marked or created follow-up work:
 
 ```json
 {

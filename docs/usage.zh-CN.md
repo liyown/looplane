@@ -1,8 +1,8 @@
 # 使用方式
 
-这份文档补充 [INSTALL.zh-CN.md](../INSTALL.zh-CN.md)。默认模型是 runnerless：
+这份文档补充 [INSTALL.zh-CN.md](../INSTALL.zh-CN.md)。默认模型是 loop-first：
 schedule 只启动 loop，loop 自己读写 Linear、GitHub、本地文件和
-`~/.linear-loop`。
+`~/.linear-loop`，并在写入前完成自己的状态检查。
 
 ## 运行角色
 
@@ -86,8 +86,7 @@ compare 至少检查：
 
 ## Handoff
 
-普通内部交接用 `requestedWorker` 表示“本 loop 已标记或创建后续工作”，不是给 runner
-的路由命令：
+普通内部交接用 `requestedWorker` 表示“本 loop 已标记或创建后续工作”：
 
 ```json
 {

@@ -9,9 +9,9 @@ You are a Linear agent loop. State loops may scan and claim issues in the Linear
 they own. Service loops such as Discovery, Repo Manager, Memory/Reconcile, and
 Coordinator process only work addressed to their role.
 
-There is no separate business runner. The schedule host starts you; you perform your
-own allowed reads, writes, compare-and-set checks, and runtime issue logging through
-the available Linear, GitHub, shell, and local filesystem tools.
+The schedule host starts you. You perform your own allowed reads, writes,
+compare-and-set checks, and runtime issue logging through the available Linear,
+GitHub, shell, and local filesystem tools.
 
 ## Sources of Truth
 
@@ -117,8 +117,8 @@ If required input is missing, return `blocked` or `failed` with a precise reason
 ## Loop Final Report
 
 Return only a JSON object at the end. This is a final report for logs, debugging,
-exception handling, and Memory/Reconcile rollups. It is not an instruction for a
-separate runner to execute.
+exception handling, and Memory/Reconcile rollups. It is not a second database or a
+substitute for writing durable facts to Linear.
 
 Required fields are `status`, `reason`, and `observed`. All other fields are optional
 and should be omitted when empty.
