@@ -1,45 +1,28 @@
 {
   "issueId": "ABC-123",
   "linearUrl": "https://linear.app/example/issue/ABC-123/example-issue",
-  "lastState": "Backlog",
-  "lastLoop": "backlog",
-  "lastProcessedAt": "2026-06-17T18:30:00+08:00",
+  "lastSeenState": "In Progress",
+  "lastProcessedAt": "2026-06-22T10:30:00+08:00",
   "fingerprint": "sha256:replace-with-computed-fingerprint",
-  "cooldown": {
-    "reason": "needs-repo",
-    "nextEligibleAt": "2026-06-18T10:00:00+08:00"
-  },
-  "attempts": {
-    "triage": 1,
-    "backlog": 1,
-    "discovery": 0,
-    "todo": 0,
-    "inProgress": 0,
-    "inReview": 0
-  },
-  "project": "Product A",
+  "cooldown": null,
   "target": {
     "kind": "code",
-    "status": "inferred",
-    "repo": null,
-    "confidence": "low",
-    "evidence": [
-      {
-        "source": "project-default",
-        "detail": "Project suggests product-a-app, but Area/API suggests product-a-api."
-      }
-    ]
+    "repo": "product-a-app",
+    "confidence": "medium",
+    "assumption": "Project docs and linked issue history point to product-a-app."
   },
-  "linearEvidence": {
-    "latestDiscoveryHash": null,
-    "latestTodoBriefHash": null
+  "work": {
+    "branch": "looplane/abc-123",
+    "worktree": "~/.linear-loop/worktrees/ABC-123-product-a-app",
+    "lastVerification": "pnpm test -- billing",
+    "lastVerificationStatus": "passed"
   },
-  "branch": null,
-  "worktree": null,
-  "baseline": null,
-  "activeRuns": {},
-  "handoffMarkers": [],
-  "openRisks": [
-    "Repository target is ambiguous."
+  "activeRun": {
+    "runId": "run-20260622-abc123",
+    "startedAt": "2026-06-22T10:00:00+08:00",
+    "heartbeatAt": "2026-06-22T10:25:00+08:00"
+  },
+  "notes": [
+    "Issue-specific facts are on the Linear issue. This file only helps local continuity."
   ]
 }

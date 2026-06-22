@@ -1,204 +1,101 @@
 # Usage
 
-This document complements [INSTALL.zh-CN.md](../INSTALL.zh-CN.md). The default model
-is loop-first: schedules start loops, and each loop performs its own allowed Linear,
-GitHub, filesystem, and `~/.linear-loop` operations after checking current state.
+The default Looplane model has one main loop: `agent-loop.md`. A schedule wakes it up.
+It scans Linear, chooses useful work, and takes the next step.
 
-## Roles
+## Prompts
 
-| Role | Runs On | Prompt |
-| --- | --- | --- |
-| Initial setup | one manual run | `prompts/initial-setup.md` |
-| Triage | `Triage` issues | `prompts/triage-loop.md` |
-| Backlog | `Backlog` issues | `prompts/backlog-loop.md` |
-| Todo | `Todo` issues | `prompts/todo-loop.md` |
-| In Progress | `In Progress` issues | `prompts/in-progress-loop.md` |
-| In Review | `In Review` issues | `prompts/in-review-loop.md` |
-| Done | `Done` issues | `prompts/done-loop.md` |
-| Canceled | `Canceled` issues | `prompts/canceled-loop.md` |
-| Duplicate | `Duplicate` issues | `prompts/duplicate-loop.md` |
-| Discovery | internal handoff | `prompts/discovery-loop.md` |
-| Repo Manager | internal handoff | `prompts/repo-manager.md` |
-| Memory/Reconcile | schedule or internal handoff | `prompts/memory-reconcile-loop.md` |
-| Coordinator | exception handling | `prompts/coordinator-loop.md` |
+| Purpose | Prompt |
+| --- | --- |
+| One-time setup | `prompts/initial-setup.md` |
+| Main schedule | `prompts/agent-loop.md` |
+| Optional maintenance schedule | `prompts/maintenance-loop.md` |
 
-State loops scan only their owned state. Service loops do not own normal visible
-states.
+## Main Loop
+
+```text
+read Linear / GitHub / Project docs / ~/.linear-loop
+choose useful issues
+decide the next step
+act: clarify, plan, inspect code, edit, verify, comment, move state
+write durable evidence
+record runtime issues and lessons
+```
+
+The main loop does not require separate pre-analysis or planning workers. When it
+needs code context, it inspects the code. When it needs a plan, it writes one. When it
+can implement, it creates a worktree, edits, verifies, and records the result.
+
+## Linear State
+
+States are signals, not boundaries. The main loop can decide what the issue needs:
+
+- new issue: accept, label, close, mark duplicate, or ask for necessary information;
+- clear requirement: refine acceptance criteria and move toward execution;
+- code issue: find the repo, inspect code, plan, implement, verify;
+- implemented work: write verification notes and move toward review or done;
+- true blocker: explain what is blocked and what human action is needed.
+
+If a workspace uses different state names, the agent should use the closest available
+state and explain the mapping once.
+
+## Human Confirmation
+
+Do not ask just because information is imperfect. Default to the smallest reversible
+step.
+
+Ask a human only for:
+
+- missing account, secret, repository, or tool access;
+- destructive data changes;
+- production deploys or irreversible operations;
+- security, legal, payment, privacy, or compliance choices;
+- costly product direction choices;
+- requirements too ambiguous for a small reversible step.
+
+For ordinary uncertainty, write the assumption in Linear and continue.
 
 ## Memory Placement
 
 ```text
 Linear issue
-  [Discovery]
-  [Todo Brief]
-  execution summary
+  task facts
+  decisions
+  progress notes
   verification result
-  blocker / needs-info reason
+  blocker reason
 
-Linear Project Docs
+Linear Project docs
   Agent Guidance
+  Agent Project Settings
   Repo Notes/{repoSlug}
   Decision Log
 
 ~/.linear-loop
-  state/issues/
-  state/locks/
-  state/cooldowns/
-  state/lesson-candidates.jsonl
+  state/
   runtime-issues/YYYY-MM.jsonl
   repos/
   worktrees/
 ```
 
-`~/.linear-loop` is not the default store for Discovery reports, Todo briefs, or full
-run JSON history.
+The local directory is not a second project database. Anything humans or later agents
+need should usually live in Linear or GitHub.
 
-## Loop Flow
+## Runtime Issues
 
-Each scheduled state loop closes its own loop:
-
-```text
-list issues in the owned Linear state
-for each candidate:
-  read Linear issue, labels, comments, project, and Project docs
-  read minimal local state from ~/.linear-loop/state
-  compute fingerprint
-  skip unchanged blocked/no-op issues until nextEligibleAt
-  claim or verify active run state
-  perform the loop-specific work
-  re-read Linear and ~/.linear-loop/state
-  compare observed snapshot with current state
-  apply allowed Linear / GitHub / filesystem / local state changes only if the snapshot still matches
-  otherwise mark stale/no-op and escalate when needed
-  append runtime issue records to ~/.linear-loop/runtime-issues/YYYY-MM.jsonl when needed
-  optionally write a short Markdown Run Note for humans
-```
-
-The compare step must check at least issue id, Linear state, `updatedAt`, labels hash,
-description/comment evidence hash, local state version, fingerprint, active run id,
-and lease or lock id when present.
-
-## Handoffs
-
-Handoffs are persisted where the next loop can actually read them. Do not encode
-handoffs only in the agent's final message.
-
-Use one of these durable markers:
-
-- A concise Linear issue comment or block, such as `[Discovery Requested]`.
-- A label such as `needs-access`, `needs-repo`, or `blocked`.
-- A local state entry under `~/.linear-loop/state/issues/`.
-- A lock, lease, or cooldown entry under `~/.linear-loop/state/locks/` or
-  `~/.linear-loop/state/cooldowns/`.
-
-Example Backlog handoff:
-
-```md
-[Discovery Requested]
-Reason: Code-backed issue has a confirmed repo target but no fresh Discovery block.
-Target: product-a-app
-Freshness: issue fingerprint sha256:...
-```
-
-Coordinator handles CAS conflicts, stale runs, expired leases, unknown states,
-human/automation drift, multi-repo decisions, and repo or lock conflicts.
-
-## Linear Project Agent Settings
-
-Store project settings on the Linear Project, either in the project description or in
-a linked project document named `Agent Project Settings`.
-
-```yaml
-agent:
-  version: 1
-  defaultTarget:
-    kind: code
-    repo: product-a-app
-    confidence: high
-  repos:
-    product-a-app:
-      origin: git@github.com:org/product-a.git
-      defaultBranch: main
-      verify:
-        test: pnpm test
-  componentMap:
-    Area/Frontend:
-      kind: code
-      repo: product-a-app
-      confidence: high
-```
-
-Backlog may infer a repo slug from project, area label, issue template, linked PR, or
-history. Repo Manager may clone only origins declared in the Linear Project settings.
-
-## Discovery Gate
-
-For code-backed work:
+When the agent finds a problem with the loop system itself, append a line to:
 
 ```text
-Backlog
-  -> records a Discovery handoff marker
-  -> Discovery writes [Discovery] to the Linear issue
-  -> Backlog or Todo proceeds when gates pass
+~/.linear-loop/runtime-issues/YYYY-MM.jsonl
 ```
 
-Do not use issue text alone to enter `Todo`. Todo writes `[Todo Brief]` back to the
-Linear issue.
+Good examples:
 
-## Experience Memory
+- unclear prompt rules;
+- Linear setup gaps;
+- missing repo origin or verification commands;
+- missing tool or access;
+- repeated task blockers;
+- repeated bad assumptions.
 
-Loops may write candidate lessons to `~/.linear-loop/state/lesson-candidates.jsonl`.
-This is only a staging area.
-
-Memory/Reconcile or Coordinator promotes a lesson only when it is repeated,
-non-issue-specific, actionable, and useful to future loops or humans.
-
-Promoted lessons go to Linear Project Docs:
-
-- `Agent Guidance`
-- `Repo Notes/{repoSlug}`
-- `Decision Log`
-
-Discard weak candidates instead of turning local state into a knowledge base.
-
-## Run Note
-
-If the agent host expects a visible final message, use Markdown:
-
-```md
-## Run Note
-- Status: completed
-- Issue: ABC-123
-- Changed: added [Todo Brief], moved Todo -> In Progress
-- Evidence: Linear issue comment
-- Next: In Progress loop
-```
-
-The run note is for humans. Later loops must read Linear, GitHub, Project Docs, and
-`~/.linear-loop`, not the note.
-
-## Runtime Issue Log
-
-Loops append runtime issue records for problems in the loop system itself:
-
-- prompt instructions were ambiguous or missing;
-- common loop rules could not express a needed action;
-- a loop did not enforce a required write rule;
-- Linear setup was missing or inconsistent;
-- Repo Manager lacked access to a declared origin;
-- a required tool was unavailable;
-- verification was flaky;
-- Linear entered a state the loop set does not handle;
-- the schedule could not access `~/.linear-loop`.
-
-The loop appends one JSON object per line to
-`~/.linear-loop/runtime-issues/YYYY-MM.jsonl`. Memory/Reconcile groups repeated
-records and turns them into prompt, loop rules, loop runtime, or Linear setup changes.
-
-## Maintaining Prompts
-
-`prompts/` is what users paste into runtime entries: Initial setup is run manually
-once, and recurring loops are pasted into schedules.
-
-When adding a loop, add the prompt file under `prompts/` and document where it fits
-in the loop flow.
+The maintenance loop groups repeated issues into Project docs or prompt improvements.
