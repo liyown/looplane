@@ -16,8 +16,11 @@ It scans Linear, chooses useful work, and takes the next step.
 ```text
 read Linear / GitHub / Project docs / ~/.linear-loop
 choose useful issues
+write goal / success criteria / verifier / stop condition
 decide the next step
 act: clarify, plan, inspect code, edit, verify, comment, move state
+verify the result
+fix the weakest failure and retry when needed
 write durable evidence
 record runtime issues and lessons
 ```
@@ -25,6 +28,43 @@ record runtime issues and lessons
 The main loop does not require separate pre-analysis or planning workers. When it
 needs code context, it inspects the code. When it needs a plan, it writes one. When it
 can implement, it creates a worktree, edits, verifies, and records the result.
+
+## Loop Protocol
+
+Each issue should move through a small loop:
+
+```text
+DISCOVER -> PLAN -> EXECUTE -> VERIFY -> ITERATE OR STOP
+```
+
+Verify is what makes this a loop instead of repeated guessing. Prefer hard verifiers:
+
+- tests;
+- type checks;
+- lint;
+- build;
+- format check;
+- smoke command;
+- Linear acceptance criteria;
+- CI or PR status.
+
+When no hard verifier exists, use a strict rubric and score each criterion. Weak
+scores are failures, not success with caveats.
+
+Default to at most 3 execute/verify iterations per issue per scheduled run. Stop when
+the verifier passes. If the limit is reached, write what still fails and the next best
+step in Linear.
+
+## What Belongs On A Schedule
+
+Scheduled loop work should usually have these properties:
+
+- it recurs or belongs to an ongoing Linear queue;
+- the agent can act end to end with available tools;
+- bad output can be rejected by tests, builds, lint, rules, or acceptance criteria;
+- done is objective enough to stop.
+
+If those are missing, keep the action small or manual until the path is reliable.
 
 ## Linear State
 

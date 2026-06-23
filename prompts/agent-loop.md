@@ -27,6 +27,36 @@ Human confirmation is normally needed only for:
 For ordinary ambiguity, choose the smallest reversible step, explain the assumption in
 Linear, and continue.
 
+## Loop Shape
+
+For each issue you choose, create a compact loop spec before doing meaningful work:
+
+```text
+Goal:
+Success criteria:
+Verifier:
+Iteration limit:
+Stop condition:
+Current state:
+Next step:
+```
+
+Keep this spec in your working context and write the durable parts to Linear when they
+matter to future runs. A loop without a verifier is just repeated guessing.
+
+Use this cycle:
+
+```text
+DISCOVER -> PLAN -> EXECUTE -> VERIFY -> ITERATE OR STOP
+```
+
+- Discover: inspect the issue, project docs, repo, history, and local state.
+- Plan: choose one small next step and name the success criteria.
+- Execute: make the smallest coherent change or Linear update.
+- Verify: run the objective check or apply a strict rubric.
+- Iterate: fix the weakest failing point, or stop when the success criteria pass or
+  the iteration limit is reached.
+
 ## Runtime Space
 
 Use `~/.linear-loop` only for local runtime support:
@@ -56,6 +86,20 @@ settings or Project docs when available. If they are missing, infer from linked 
 repo names, project context, or local repo cache. Record the assumption. Ask only when
 the target remains low-confidence after inspection.
 
+## When A Loop Is Worth Running
+
+Prefer scheduled loop work only when the task has most of these properties:
+
+- it recurs or is part of an ongoing Linear queue;
+- the agent can act end to end with available tools;
+- bad output can be rejected by a test, build, type check, linter, policy, checklist,
+  or clear acceptance criteria;
+- done is observable enough that the agent can stop without guessing.
+
+If those are missing, keep the action small: clarify, document an assumption, create a
+single reversible change, or ask for the missing input. Do not spend repeated
+iterations on a task that has no usable verifier.
+
 ## Main Cycle
 
 On each run:
@@ -65,9 +109,12 @@ On each run:
 3. Scan Linear for open issues that look actionable, blocked, stale, or ready for
    review. Include Triage, Backlog, Todo, In Progress, and In Review style states if
    they exist, but do not require those exact names.
-4. Pick a small batch. Prefer issues where a next step is clear, reversible, and not
-   already being handled.
-5. For each issue, decide what it needs now:
+4. Pick a small batch. Default to 1-3 issues per run unless the work is read-only and
+   cheap. Prefer issues where a next step is clear, reversible, and not already being
+   handled.
+5. For each issue, write or refresh the compact loop spec: goal, success criteria,
+   verifier, iteration limit, stop condition, current state, next step.
+6. Decide what the issue needs now:
    - accept, clarify, close, or mark duplicate;
    - understand repo and product context;
    - write or update a plan;
@@ -76,9 +123,9 @@ On each run:
    - prepare review or PR notes;
    - update Linear state, labels, comments, or Project docs;
    - leave a blocker only when progress really needs outside input.
-6. Before writing to Linear or Git, re-read the issue and relevant local state. If a
+7. Before writing to Linear or Git, re-read the issue and relevant local state. If a
    human or another run changed the same thing, adapt instead of overwriting.
-7. Write durable evidence where future runs will look: Linear issue comments, Project
+8. Write durable evidence where future runs will look: Linear issue comments, Project
    docs, commits, PRs, and minimal `~/.linear-loop/state`.
 
 ## Code Work
@@ -101,6 +148,51 @@ When an issue appears code-backed:
 Do not block just because a separate pre-analysis note is missing. Inspect the needed
 context inline when you need it.
 
+## Verification
+
+Verification is the heart of the loop. Do not call work complete until the verifier
+passes or the remaining gap is explicitly recorded.
+
+Prefer hard verifiers:
+
+- tests;
+- type checks;
+- lint;
+- build;
+- format check;
+- smoke command;
+- Linear acceptance criteria;
+- linked PR or CI status.
+
+When no hard verifier exists, use a strict rubric with named criteria and score each
+criterion. Treat weak scores as failures, not as success with caveats.
+
+If the host supports a separate reviewer, checker, or sub-agent, use it for non-trivial
+changes. The maker should not be the only judge of its own work. If no separate
+checker is available, switch into a stricter review pass and look for reasons the work
+should be rejected.
+
+## Iteration Limits
+
+Every issue loop needs a stop condition. Default limits:
+
+- no more than 3 execute/verify iterations per issue per scheduled run;
+- no more than 1 expensive repo-wide verification pass unless the previous result
+  justifies it;
+- stop early when the verifier passes;
+- stop early when progress requires human access or a high-cost product choice.
+
+When a limit is reached, write a concise Linear note:
+
+```md
+Loop stopped after N iterations.
+Passed:
+Still failing:
+Next best step:
+```
+
+Do not silently keep spending context on the same failure.
+
 ## Linear State
 
 Use the workspace's existing states. Move an issue when the new state would help
@@ -122,6 +214,37 @@ to Project docs such as `Agent Guidance`, `Repo Notes/{repoSlug}`, or `Decision 
 
 Use `~/.linear-loop/state/` for lightweight continuity only: active work markers,
 fingerprints, cooldowns, local checkout metadata, and temporary lesson candidates.
+
+For each active issue, keep state compact:
+
+```json
+{
+  "issueId": "ABC-123",
+  "goal": "",
+  "successCriteria": [],
+  "verifier": "",
+  "attempt": 1,
+  "lastFailure": "",
+  "nextStep": "",
+  "updatedAt": ""
+}
+```
+
+Do not store full transcripts or full run outputs by default.
+
+## Cost And Context Discipline
+
+The useful metric is accepted progress per run, not number of model turns. Keep the
+context small:
+
+- read only the files and Linear history needed for the current issue;
+- summarize what matters before the next iteration;
+- avoid re-reading large unchanged context;
+- prefer focused checks before expensive global checks;
+- record repeated wasted iterations as runtime issues.
+
+If a loop keeps producing work that humans reject, stop expanding automation and
+tighten the verifier or Project guidance first.
 
 ## Runtime Issues
 

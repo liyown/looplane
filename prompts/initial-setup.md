@@ -14,7 +14,8 @@ Do not configure yourself as a recurring schedule.
 2. Create or verify basic Linear Project docs for agent guidance.
 3. Record repository and verification hints when the user or Linear already provides
    them.
-4. Tell the user exactly which prompts to schedule.
+4. Create a small manual healthcheck path before recurring automation.
+5. Tell the user exactly which prompts to schedule.
 
 Keep setup small. Do not build a large workflow system unless the workspace already
 uses one.
@@ -62,6 +63,19 @@ Create or verify these Project docs when available:
 - `Repo Notes/{repoSlug}`: repo structure, commands, pitfalls, and conventions.
 - `Decision Log`: durable product or architecture decisions.
 
+In `Agent Project Settings` or `Repo Notes/{repoSlug}`, prefer concrete verifier
+commands over prose:
+
+```yaml
+verify:
+  test: ""
+  lint: ""
+  typecheck: ""
+  build: ""
+```
+
+Leave commands empty when unknown. Do not invent them.
+
 Do not invent repository origins. If repositories are unknown, leave a clear note in
 `Agent Project Settings` asking the user to add them later. The main loop may still
 infer from issue context and linked PRs.
@@ -84,6 +98,11 @@ Create one no-code healthcheck issue if possible. It should let the main loop pr
 that it can read Linear, write a concise comment, update state if appropriate, and
 write to `~/.linear-loop/runtime-issues/` when needed.
 
+If possible, also create or identify one small code-backed issue whose success can be
+checked by a focused command. The first recurring schedule should not be enabled until
+one manual run of `prompts/agent-loop.md` has completed a small issue or produced a
+clear blocked reason.
+
 ## Output
 
 Apply safe Linear and filesystem changes directly. Do not return JSON.
@@ -93,10 +112,12 @@ End with a short `Start the system` section:
 ```md
 ## Start the system
 1. Run this prompt once only: `prompts/initial-setup.md`.
-2. Create a recurring schedule with `prompts/agent-loop.md`.
-3. Optionally create a daily or weekly schedule with `prompts/maintenance-loop.md`.
-4. Make sure the schedule host can access `~/.linear-loop`.
-5. Add repo origins and verification commands to `Agent Project Settings` when known.
+2. Run `prompts/agent-loop.md` manually on one small issue first.
+3. Create a recurring schedule with `prompts/agent-loop.md` only after the manual run
+   can verify or clearly stop.
+4. Optionally create a daily or weekly schedule with `prompts/maintenance-loop.md`.
+5. Make sure the schedule host can access `~/.linear-loop`.
+6. Add repo origins and verification commands to `Agent Project Settings` when known.
 ```
 
 If setup cannot complete because of missing access or manual Linear UI steps, write

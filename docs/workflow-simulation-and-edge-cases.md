@@ -86,6 +86,33 @@ Expected behavior:
 - It still uses focused verification when possible.
 - It distinguishes pre-existing failures from failures introduced by its change.
 
+## No Clear Verifier
+
+Input:
+
+- An issue asks for a broad quality improvement with no acceptance criteria.
+
+Expected behavior:
+
+- The main loop does not spend repeated iterations guessing.
+- It proposes a small measurable slice or writes one concrete acceptance criterion.
+- If a verifier cannot be inferred, it asks one focused question or leaves the issue
+  ready for human refinement.
+
+## Iteration Limit Reached
+
+Input:
+
+- The agent tries to fix a failing test three times and the same failure remains.
+
+Expected behavior:
+
+- The loop stops for that issue in this run.
+- It writes what passed, what still fails, and the next best step in Linear.
+- It records a runtime issue if the failure suggests missing guidance, flaky tests, or
+  a tooling problem.
+- Maintenance later checks whether this pattern repeats.
+
 ## Repeated Bad Assumption
 
 Input:

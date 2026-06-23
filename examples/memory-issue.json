@@ -4,6 +4,17 @@
   "lastSeenState": "In Progress",
   "lastProcessedAt": "2026-06-22T10:30:00+08:00",
   "fingerprint": "sha256:replace-with-computed-fingerprint",
+  "goal": "Fix the billing retry bug without changing checkout behavior.",
+  "successCriteria": [
+    "Billing retry test passes.",
+    "Focused billing tests pass.",
+    "No checkout files changed."
+  ],
+  "verifier": "pnpm test -- billing",
+  "attempt": 2,
+  "iterationLimit": 3,
+  "lastFailure": "Retry test still fails on duplicate invoice id.",
+  "nextStep": "Inspect invoice idempotency handling before the final attempt.",
   "cooldown": null,
   "target": {
     "kind": "code",

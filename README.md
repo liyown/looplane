@@ -10,6 +10,9 @@ This is loop engineering, not prompt engineering. The point is not to split work
 many brittle prompts. The point is to keep one useful loop sensing, acting, recording,
 and correcting itself.
 
+A real loop is more than a scheduled prompt. It needs a goal, success criteria, a
+verifier, compact state, and a stop condition.
+
 ## Start Here
 
 - [Local setup](INSTALL.zh-CN.md): initialize local runtime space and schedules.
@@ -22,8 +25,10 @@ and correcting itself.
 
 1. Initialize `~/.linear-loop`.
 2. Run `prompts/initial-setup.md` once.
-3. Create a recurring schedule using `prompts/agent-loop.md`.
-4. Optionally create a daily or weekly schedule using `prompts/maintenance-loop.md`.
+3. Run `prompts/agent-loop.md` manually on one small issue.
+4. After one manual run is reliable, create a recurring schedule using
+   `prompts/agent-loop.md`.
+5. Optionally create a daily or weekly schedule using `prompts/maintenance-loop.md`.
 
 The user does not need to understand a set of internal workers. The main loop handles
 triage, context discovery, planning, implementation, verification, comments, state
@@ -35,8 +40,11 @@ updates, and blockers.
 schedule wakes agent-loop
   -> scan Linear
   -> choose useful issues
+  -> define goal / success criteria / verifier / stop condition
   -> infer context from Linear / GitHub / Project docs / local repos
   -> act: clarify, plan, code, test, review, comment, move state
+  -> verify
+  -> iterate or stop
   -> write durable evidence
   -> remember lessons and runtime problems
 ```
@@ -58,6 +66,18 @@ Default to action. Ask only when progress really depends on a human choice:
 Ordinary uncertainty should not block the loop. The agent should take the smallest
 reversible step, write the assumption in Linear, and continue.
 
+## When Not To Loop
+
+Do not schedule work that has no verifier, cannot be completed by the agent, or has no
+objective done condition. Keep it as a manual prompt or one-off agent run until the
+manual path is reliable.
+
+Order matters:
+
+```text
+manual run -> stable prompt -> verifier and stop condition -> schedule
+```
+
 ## Local Loop Space
 
 Default directory:
@@ -73,6 +93,9 @@ Default directory:
 `~/.linear-loop` stores runtime state, local repo cache, worktrees, temporary notes,
 and runtime issue logs. Long-lived truth belongs in Linear issues, Linear Project
 docs, GitHub, or the repository.
+
+Keep local state compact: goal, success criteria, verifier, attempt count, latest
+failure, and next step. Do not store full transcripts or full run outputs by default.
 
 ## Prompt Files
 

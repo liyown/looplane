@@ -12,6 +12,9 @@ The default system is intentionally small:
 - one recurring main agent loop;
 - one optional low-frequency maintenance loop.
 
+The loop is defined by goal, verifier, state, and stop condition. A scheduled prompt
+without those is automation, not a reliable loop.
+
 ## Design Principle
 
 The agent is an executor, not a flowchart interpreter. Linear states, labels, and
@@ -21,9 +24,39 @@ agent from making an obvious safe step.
 Default behavior:
 
 1. infer from available context;
-2. take the smallest useful reversible step;
-3. write assumptions and evidence in Linear;
-4. ask humans only when the missing decision is high-cost or requires access.
+2. define success criteria and a verifier;
+3. take the smallest useful reversible step;
+4. verify the result;
+5. write assumptions and evidence in Linear;
+6. stop when done or when the iteration limit is reached;
+7. ask humans only when the missing decision is high-cost or requires access.
+
+## Loop Protocol
+
+For each issue:
+
+```text
+DISCOVER -> PLAN -> EXECUTE -> VERIFY -> ITERATE OR STOP
+```
+
+Verification should be objective when possible: tests, type checks, lint, build,
+format check, smoke command, CI status, or Linear acceptance criteria. When objective
+verification is unavailable, use a strict rubric and treat weak scores as failures.
+
+Every issue loop needs an iteration cap. The default cap is 3 execute/verify attempts
+per issue per scheduled run. When the cap is reached, the agent records what passed,
+what failed, and the next best step.
+
+## Scheduling Rule
+
+Do not put an unproven prompt straight on a recurring schedule. The rollout order is:
+
+```text
+manual run -> stable prompt -> verifier and stop condition -> recurring schedule
+```
+
+Scheduled work should be repeated or queue-based, executable by the agent end to end,
+and objectively checkable enough to stop.
 
 ## Prompts
 
@@ -54,6 +87,11 @@ lessons into Project docs, and suggests safe cleanup of stale local state.
 
 Local state is operational support, not project truth. The agent should be able to
 rebuild most context from Linear, GitHub, Project docs, and the repository.
+
+Compact local issue state should contain only what helps the next run resume: goal,
+success criteria, verifier, attempt count, latest failure, next step, local checkout
+metadata, and timestamps. Full transcripts and full run outputs do not belong here by
+default.
 
 ## Memory Placement
 
@@ -109,3 +147,14 @@ requirements and not a second database.
 Good entries describe repeated prompt gaps, setup gaps, missing tools, flaky
 verification, bad repo inference, access problems, or recurring confusion in Linear
 state conventions.
+
+## Maintenance Metrics
+
+The useful metric is accepted progress per run, not turns or tokens. The maintenance
+loop should look for:
+
+- repeated iteration-limit stops;
+- work that humans revert or ignore;
+- weak or missing verifiers;
+- expensive checks run without accepted progress;
+- repeated context reads that can be replaced by repo notes or Project guidance.

@@ -37,7 +37,14 @@ Initial setup 不需要做成 schedule。
 
 ## 3. 创建主 Schedule
 
-创建一个 recurring schedule，粘贴：
+先不要直接创建 recurring schedule。先把下面这个 prompt 手动运行一次，让它处理一个
+小 issue，并确认它能验证结果或清楚地停止：
+
+```text
+prompts/agent-loop.md
+```
+
+手动运行可靠后，再创建 recurring schedule，粘贴：
 
 ```text
 prompts/agent-loop.md
@@ -45,6 +52,9 @@ prompts/agent-loop.md
 
 建议频率从 10-30 分钟一次开始。主 loop 会自己扫描 Linear，选择有价值的 issue，然后
 完成 triage、理解、计划、实现、验证、评论和状态更新。
+
+不要把没有验证方式的任务直接放进定时循环。代码任务至少要有测试、lint、typecheck、
+build、smoke command 或明确验收标准中的一种。
 
 ## 4. 可选：创建维护 Schedule
 
@@ -62,6 +72,9 @@ prompts/maintenance-loop.md
 - Issue 相关事实、执行摘要、验证结果、阻塞原因：写到 Linear issue。
 - 长期经验和项目偏好：写到 Linear Project docs。
 - repo 缓存、worktree、临时状态、runtime issue log：写到 `~/.linear-loop`。
+
+每个 issue 的本地状态只保留小摘要：目标、成功标准、验证器、尝试次数、最近失败和下一步。
+不要把完整对话或完整 run 输出存成本地数据库。
 
 ## 人工确认边界
 
